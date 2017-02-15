@@ -44,27 +44,38 @@ oCRUD.attachLogin(function() {
 
 ## Method detail
 
-[clearBatch](#clearBatch)
-[create](#create)
-[createBatchOperation](#createBatchOperation)
-[createEntry](#createEntry)
-[hasPendingChanges](#hasPendingChanges)
-[login](#login)
-[logout](#logout)
-[read](#read)
-[setProperty](#setProperty)
-[submitChanges](#submitChanges)
-[resetChanges](#resetChanges)
-[reload](#reload)
-[remove](#remove)
+[clearBatch](#clearBatch),
+[create](#create),
+[createBatchOperation](#createBatchOperation),
+[createEntry](#createEntry),
+[hasPendingChanges](#hasPendingChanges),
+[login](#login),
+[logout](#logout),
+[read](#read),
+[setProperty](#setProperty),
+[submitChanges](#submitChanges),
+[resetChanges](#resetChanges),
+[reload](#reload),
+[remove](#remove),
 [update](#update)
 
 
-###clearBatch
+###clearBatch()
+Removes all operations in the current batch.
 
+###create(sPath, oData, mParmeters?)
+Trigger a POST request to the CRUD service that was specified in the model constructor. Please note that deep creates are not supported and may not work. 
 
-###create
+**Parameters:**
 
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{string}*			| **sPath** 						| 	A string containing the path to the collection where an entry should be created. The path is concatenated to the sServiceUrl which was specified in the model constructor.
+*{object}*			| **oData** 						| Data of the entry that should be created.
+*{map}*				| **mParameters?** 					| Optional parameter map containing any of the following properties:created.
+*{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
+*{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
+*{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
 
 ###createBatchOperation
 
