@@ -118,6 +118,36 @@
 			 * @param  {array} aFilters 
 			 * @return {xhr object}          
 			 */
+			var __reloadExecBind = []; // hold the binds and will be reloaded when this.reload is called
+			_static.reloadBinds = function(fnSuccess, fnError) {
+				fnSuccess	= (typeof fnSuccess == "function") ? fnSuccess : function(){};
+				fnError		= (typeof fnError == "function") ? fnError : function(){};
+				if (__reloadExecBind.length === 0) {
+					fnSuccess();
+				} else {
+					var aPromises = [];
+					$.each(__reloadExecBind, function(i, o) {
+						aPromises.push(_static.execBind(o.oProxy, o.sPath, o.aSorters, o.aFilters, true));
+					});
+					$.when.apply($, aPromises)
+						.done(function() { 
+							var aErrors = [];
+							$.each(arguments, function(i, a) {
+								if (a[1] == 'error') {
+									aErrors.push(a);
+								}
+							});
+							if (aErrors.length) {
+								fnError(aErrors);
+							} else {
+								fnSuccess();
+							}
+						})
+						.fail(function() {
+							fnError.apply(this, arguments);
+						});
+				}
+			};
 			_static.execBind = function(oProxy, sPath, aSorters, aFilters, bAttachReload) {
 				var mPath	= _static.parsePath(sPath),
 					sUrl	= mPath.Table;
@@ -130,9 +160,16 @@
 					oProxy.attachLogin(function() { 
 						_static.execBind(oProxy, sPath, aSorters, aFilters, true);
 					});
-					oProxy.attachReload(function() { 
-						_static.execBind(oProxy, sPath, aSorters, aFilters, true);
+					__reloadExecBind.push({
+						oProxy		: oProxy,
+						sPath		: sPath,
+						aSorters	: aSorters,
+						aFilters	: aFilters
 					});
+					// oProxy.attachReload(function() { 
+					// 	console.log(arguments);
+					// 	_static.execBind(oProxy, sPath, aSorters, aFilters, true);
+					// });
 				}				
 				return oProxy._serviceCall(
 					sUrl,
@@ -1220,15 +1257,15 @@
 
 
 			/**
-			 * Reloads all data from the API server
-			 * NB: Removes all update data which has not been send yet
+			 * Reloads all data from the API server but keep the batch
 			 * @param  {function} fnSuccess a callback function which is called when the data has been successfully reloaded.
 			 * @param  {functino} fnError   error callback
 			 */
 			CRUDModel.prototype.reload = function(fnSuccess, fnError) {
-				this.fireReload(); //_static.execBind
-				/* TODO CHECK the bindings to reload if so can put it in a promise!! */
-				console.log("TODO");
+				_static.reloadBinds(fnSuccess, fnError);
+				// this.fireReload({
+				// 	test: "test"
+				// }); //_static.execBind
 				// if (typeof fnSuccess !== "function") {
 				// 	fnSuccess = function(){};
 				// }
