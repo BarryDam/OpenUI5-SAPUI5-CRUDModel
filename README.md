@@ -2,10 +2,10 @@
 
 [OpenUI5](http://openui5.org/)/[SAPUI5](https://sapui5.hana.ondemand.com) Model implementation for [mevdschee/php-crud-api](https://github.com/mevdschee/php-crud-api).
 
-The CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) and has a similair way of using like [sap.ui.model.odata.ODataModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.odata.ODataModel.html)
+The CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) and you can work with in as in a similair way to [sap.ui.model.odata.ODataModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.odata.ODataModel.html)
 
 ## Setup in UI5
-1. Add the CRUDModel.js file to you project folder library/bd/model/
+1. Add the CRUDModel.js file to you project subfolder library/bd/model/
 2. In your Component.js file add the following lines
 ```javascript
 jQuery.sap.registerModulePath("nl.barrydam", "library/bd/");
@@ -13,10 +13,22 @@ jQuery.sap.require("nl.barrydam.model.CRUDModel");
 ```
 
 ## Example
-In any controller (for example your component.js):
+In your Component.js:
 ```javascript
 var oServiceExample = new nl.barrydam.model.CRUDModel("http://www.yourapirurl.com/service/");
 this.setModel(oServiceExample, "ServiceExample");
+// if authentication is needed:
+var that = this;
+oServiceExample.attachLogout(function(){
+	var oRouter = that.getRouter();
+	oRouter.navTo('Login');
+	oRouter.stop(); // stop listening to the router
+});
+oServiceExample.attachLogin(function(){
+	var oRouter = that.getRouter();
+	oRouter.initialize(); // restart the trouter
+	oRouter.navTo('Home');
+});
 ```
 In your xml view the following will auto trigger a get request to the service and output your results in a list:
 ```xml
@@ -33,6 +45,8 @@ In your xml view the following will auto trigger a get request to the service an
 	    descending: false
     }]
 }"
+
+
 >
 	<items>
 		<StandardListItem title="{ServiceExample>firstName} {ServiceExample>lastName}" />
