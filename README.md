@@ -44,20 +44,63 @@ oCRUD.attachLogin(function() {
 
 ## Method detail
 
-clearBatch
-create
-createBatchOperation
-createEntry
-hasPendingChanges
-login
-logout
-read
-setProperty
-submitChanges
-resetChanges
-reload
-remove
-update
+[clearBatch](#clearBatch)
+[create](#create)
+[createBatchOperation](#createBatchOperation)
+[createEntry](#createEntry)
+[hasPendingChanges](#hasPendingChanges)
+[login](#login)
+[logout](#logout)
+[read](#read)
+[setProperty](#setProperty)
+[submitChanges](#submitChanges)
+[resetChanges](#resetChanges)
+[reload](#reload)
+[remove](#remove)
+[update](#update)
+
+
+###clearBatch
+
+
+###create
+
+
+###createBatchOperation
+
+
+###createEntry
+
+
+###hasPendingChanges
+
+
+###login
+
+
+###logout
+
+
+###read
+
+
+###setProperty
+
+
+###submitChanges
+
+
+###resetChanges
+
+
+###reload
+
+
+###remove
+
+
+###update
+
 
 
 ## BUY ME A BEER
