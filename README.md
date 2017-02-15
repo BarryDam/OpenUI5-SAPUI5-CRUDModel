@@ -223,7 +223,7 @@ Type 				| Variable 							| Description
 **Returns** *{object}* An object which has an abort function to abort the current request.
 
 
-###reload
+###reload(fnSuccess?, fnError?)
 Reloads the data from the server and keeps the colleted changes.
 
 **Parameters:**
