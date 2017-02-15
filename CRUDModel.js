@@ -1220,33 +1220,14 @@
 
 
 			/**
-			 * Resets the collected changes by the setProperty method 
-			 * @param  {function} fnSuccess a callback function which is called when the data has been successfully resetted. The handler can have the following parameters: oData and response.
-			 */
-			CRUDModel.prototype.resetChanges = function(fnSuccess, fnError) {
-				if (typeof fnSuccess !== 'function') {
-					fnSuccess = function(){};
-				}
-				var that = this;
-				this.reload.call(
-					this, 
-					function onSucces(){
-						that.clearBatch();
-					},
-					fnError
-				);
-			};
-
-			
-			/**
 			 * Reloads all data from the API server
 			 * NB: Removes all update data which has not been send yet
 			 * @param  {function} fnSuccess a callback function which is called when the data has been successfully reloaded.
 			 * @param  {functino} fnError   error callback
 			 */
 			CRUDModel.prototype.reload = function(fnSuccess, fnError) {
-				this.fireReload();
-				/* TODO CHECK fireReload if so can put it in a promise!! */
+				this.fireReload(); //_static.execBind
+				/* TODO CHECK the bindings to reload if so can put it in a promise!! */
 				console.log("TODO");
 				// if (typeof fnSuccess !== "function") {
 				// 	fnSuccess = function(){};
@@ -1348,10 +1329,29 @@
 								} 
 							},
 							error		: mParameters.error,
-							async		: ("async" in mParameters) ? mParameters.async : true // def true
+							async		: ("async" in mParameters) ? mParameters.async : false // def false
 						}
 					);
 				}
+			};
+
+
+			/**
+			 * Resets the collected changes by the setProperty method and reloads the data from the server. 
+			 * @param  {function} fnSuccess a callback function which is called when the data has been successfully resetted. The handler can have the following parameters: oData and response.
+			 */
+			CRUDModel.prototype.resetChanges = function(fnSuccess, fnError) {
+				if (typeof fnSuccess !== 'function') {
+					fnSuccess = function(){};
+				}
+				var that = this;
+				this.reload.call(
+					this, 
+					function onSucces(){
+						that.clearBatch();
+					},
+					fnError
+				);
 			};
 
 
@@ -1410,12 +1410,12 @@
 								}
 							},
 							error   : mParameters.error || null,
-							async   : ("async" in mParameters) ? mParameters.async : true // def true
+							async   : ("async" in mParameters) ? mParameters.async : false // def true
 						}
 					);
 				}	
 				
-			}
+			};
 
 			return CRUDModel;
 			

@@ -2,7 +2,7 @@
 
 [OpenUI5](http://openui5.org/)/[SAPUI5](https://sapui5.hana.ondemand.com) Model implementation for [mevdschee/php-crud-api](https://github.com/mevdschee/php-crud-api).
 
-The CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) and you can work with in as in a similair way to [sap.ui.model.odata.ODataModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.odata.ODataModel.html)
+The CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) and you can work with it as in a similair way to [sap.ui.model.odata.ODataModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.odata.ODataModel.html)
 
 ## Setup in UI5
 1. Add the CRUDModel.js file to you project subfolder library/bd/model/
