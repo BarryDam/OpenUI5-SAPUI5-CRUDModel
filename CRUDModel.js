@@ -854,6 +854,10 @@
 				});
 			};
 
+			/**
+			 * Logout method
+			 * @return {[type]} [description]
+			 */
 			CRUDModel.prototype.logout = function() {
 				this._serviceCall("?_a=logout");
 				// var mURLparams = that.getServiceUrlParams();
