@@ -909,12 +909,12 @@
 			 * Note: Only one entry of one collection can be updated at once. Otherwise a fireRejectChange event is fired.
 			 * Before updating a different entry the existing changes of the current entry have to be submitted or resetted by the corresponding methods: submitChanges, resetChanges.
 			 * IMPORTANT: All pending changes are resetted in the model if the application triggeres any kind of refresh on that entry. Make sure to submit the pending changes first. To determine if there are any pending changes call the hasPendingChanges method.
-			 * @param {string} 	sPath        path of the property to set
-			 * @param {any} 	oValue       value to set the property to
-			 * @param {object} 	oContext     the context which will be used to set the property
+			 * @param {string}	sPath        path of the property to set
+			 * @param {any}		oValue       value to set the property to
+			 * @param {object}	oContext     the context which will be used to set the property
 			 * TODO @param {[type]}	bAsynsUpdate [description]
 			 */
-			CRUDModel.prototype.setProperty = function(sPath, oValue, oContext, bAsynsUpdate) {
+			CRUDModel.prototype.setProperty = function(sPath, oValue) {
 				var Parent = JSONModel.prototype.setProperty.apply(this, arguments);
 				// check if the updatelist has to be notified
 				if (oContext) {					
