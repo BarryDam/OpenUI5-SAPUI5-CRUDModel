@@ -77,8 +77,16 @@ Type 				| Variable 							| Description
 *{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
 
-###createBatchOperation
+###createBatchOperation(sPath, sMethod, oData?)
+Creates a single batch operation (read or change operation) which can be used in a batch request.
 
+**Parameters:**
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{string}*			| **sPath** 						| 	A string containing the path to the collection where an entry should be created. The path is concatenated to the sServiceUrl which was specified in the model constructor.
+*{string}*			| **sMethod** 						| for the batch operation. Possible values are GET, PUT, MERGE, POST, DELETE
+*{object}*			| **oData?** 						| optional data payload which should be created, updated, deleted in a change batch operation.
 
 ###createEntry
 
