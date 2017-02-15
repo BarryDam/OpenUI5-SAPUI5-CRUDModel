@@ -16,17 +16,18 @@ jQuery.sap.require("nl.barrydam.model.CRUDModel");
 Constructor for a new CRUDModel.
 
 **Parameters:**
-Markdown | Less | Pretty
---- | --- | ---
-*Still* | `renders` | **nicely**
-1 | 2 | 3
 
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{string}*			| **sServiceUrl** 					| Base uri of the service to request data from; additional URL parameters appended here will be appended to every request can be passed with the mParameters object as well
+*{object}*			| **mParameters?**					| (optional) a map which contains the following parameter properties:
+*{string}*			| **mParameters.bindingMode?**		| Set the binding mode for the model (OneWay or TwoWay, default = TwoWay)
+*{string}*			| **mParameters.user**				| User for the service
+*{string}*			| **mParameters.password**			| Password for service
+*{string}*			| **mParameters.primaryKey**		| Database primary key (default = 'id')
+*{map}*				| **mParameters.serviceUrlParams**	| Map of URL parameters - these parameters will be attached to all requests
+*{boolean}*			| **mParameters.useBatch**			| When true all POST PUT and DELETE requests will be sent in batch requests (default = false)
 
-
-Markdown | Less | Pretty
---- | --- | ---
-*{string}*	| **sServiceUrl** 	| base uri of the service to request data from; additional URL parameters appended here will be appended to every request can be passed with the mParameters object as well
-*{string}*	| **sServiceUrl** 	| base uri of the service to request data from; additional URL parameters appended here will be appended to every request can be passed with the mParameters object as well
 
 
 ## BUY ME A BEER
