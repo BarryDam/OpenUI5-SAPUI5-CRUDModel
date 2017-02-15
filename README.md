@@ -78,7 +78,7 @@ Or once: You can catch them by using the following methods: attachLoginOnce, att
 
 **Example**
 ```javascript
-oCRUD.attachLogin(function() {
+oServiceExample.attachLogin(function() {
 	alert("User has logged in");
 });
 ```
