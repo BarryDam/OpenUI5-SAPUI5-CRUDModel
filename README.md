@@ -273,5 +273,12 @@ Type 				| Variable 							| Description
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
 
 
+### setUseBatch(bUseBatch?)
+Enable/Disable batch for all requests
+
+**Parameters:**
+*{boolean}* **boolean?** 	whether the requests should be encapsulated in a batch request
+
+
 ## BUY ME A BEER
 [![PayPayl donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XX68BNMVCD7YS "Donate once-off to this project using Paypal")
