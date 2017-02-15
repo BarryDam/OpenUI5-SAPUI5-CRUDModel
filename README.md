@@ -88,8 +88,25 @@ Type 				| Variable 							| Description
 *{string}*			| **sMethod** 						| for the batch operation. Possible values are GET, PUT, MERGE, POST, DELETE
 *{object}*			| **oData?** 						| optional data payload which should be created, updated, deleted in a change batch operation.
 
-###createEntry
+###createEntry(sPath, oData?)
+Creates a new entry object which is described by the metadata of the entity type of the specified sPath Name. A context object is returned which can be used to bind against the newly created object.
 
+For each created entry a request is created and stored in a request queue. The request queue can be submitted by calling [submitChanges](#submitChanges). To delete a created entry from the request queue call [deleteCreateEntry](#deleteCreateEntry).
+
+The optional oData parameter can be used as follows:
+
+If oData is not specified, all properties in the entity type will be included in the created entry.
+
+If there are no values specified the properties will have undefined values.
+
+Please note that deep creates (including data defined by navigationproperties) are not supported
+
+**Parameters:**
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{string}*			| **sPath** 						| Name of the path to the collection.
+*{object}*			| **oData** 						| An object that specifies a set of properties or the entry
 
 ###hasPendingChanges
 
