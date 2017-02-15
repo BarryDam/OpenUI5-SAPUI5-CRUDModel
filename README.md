@@ -119,7 +119,7 @@ Checks if there exist pending changes in the model created by the setProperty me
 
 
 ###login(sUser, sPassword, mParameters?)
-When the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented, you first need to login
+When the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented, you first need to login. Note: this method fires a request with serviceUrl param _a=login
 
 **Parameters:**
 
@@ -127,8 +127,13 @@ Type 				| Variable 							| Description
 --- 				| --- 								| ---
 *{string}*			| **sUser** 						| User for the service
 *{string}*			| **sPassword** 					| password for the service
+*{map}*				| **mParameters?** 					| Optional parameter map containing any of the following properties:
+*{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
+*{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
+*{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
 
-###logout
+###logout()
+Logs the user out when the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented.
 
 
 ###read
