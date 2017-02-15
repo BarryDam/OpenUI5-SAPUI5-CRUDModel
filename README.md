@@ -58,7 +58,8 @@ oCRUD.attachLogin(function() {
 [reload](#reload),
 [remove](#remove),
 [update](#update)
----
+
+Note: nl.barrydam.CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) all methods of the JSONModel can also be used except the "loadData" method
 
 ###clearBatch()
 Removes all operations in the current batch.
@@ -192,7 +193,14 @@ Type 				| Variable 							| Description
 *{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
 
 ###reload
+Reloads the data from the server and keeps the colleted changes.
 
+**Parameters:**
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
+*{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
 
 ###remove
 
