@@ -921,7 +921,7 @@
 				var mPath = _static.parsePath(sPath);
 				// Check and set api params
 				mParameters = (typeof mParameters == "object") ? mParameters : {} ;
-				var sColumn			= mPath.Table,
+				var sUrl			= mPath.Table,
 					that			= this,
 					mAPIListParams	= {
 						success: function(mResponse) {
@@ -936,8 +936,12 @@
 						async	: ("async" in mParameters) ? mParameters.async  : true, // def true
 						type: "GET" // read is allways get
 					};
+				// Filter
+				if ("filters" in mParameters && $.isArray(mParameters.filters) && mParameters.filters.length ) {
+					sUrl += "?"+_static.parseUI5Filters(aFilters);
+				}
 				// exec api call
-				this._serviceCall(sColumn, mAPIListParams);
+				this._serviceCall(sUrl, mAPIListParams);
 			};
 
 
@@ -949,7 +953,6 @@
 			 * @param {string}	sPath        path of the property to set
 			 * @param {any}		oValue       value to set the property to
 			 * @param {object}	oContext     the context which will be used to set the property
-			 * TODO @param {[type]}	bAsynsUpdate [description]
 			 */
 			CRUDModel.prototype.setProperty = function(sPath, oValue) {
 				var Parent = JSONModel.prototype.setProperty.apply(this, arguments);
