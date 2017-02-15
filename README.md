@@ -136,10 +136,34 @@ Type 				| Variable 							| Description
 Logs the user out when the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented.
 
 
-###read
+###read(sPath, mParameters?)
+Trigger a GET request to the odata service that was specified in the model constructor. The data will not be stored in the model. The requested data is returned with the response.
+
+**Parameters:**
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{string}*			| **sPath** 						| 	A string containing the path to the collection where an entry should be created. The path is concatenated to the sServiceUrl which was specified in the model constructor.
+*{map}*				| **mParameters?** 					| Optional parameter map containing any of the following properties:
+*{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
+*{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
+*{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
 
 
-###setProperty
+###setProperty(sPath, oValue)
+Sets a new value for the given property sPropertyName in the model without triggering a server request. This can be done by the [submitChanges](#submitChanges) method.
+Note: Only one entry of one collection can be updated at once. Otherwise a fireRejectChange event is fired.
+
+Before updating a different entry the existing changes of the current entry have to be submitted or resetted by the corresponding methods: [submitChanges](#submitChanges), resetChanges.
+
+IMPORTANT: All pending changes are resetted in the model if the application triggeres any kind of refresh on that entry. Make sure to submit the pending changes first. To determine if there are any pending changes call the [hasPendingChanges](#hasPendingChanges) method.
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{string}*			| **sPath** 						| Path of the property to set
+*{any}*				| **oValue** 						| value to set the property to
+
+**Returns** *{boolean}*	true if the value was set correctly and false if errors occurred like the entry was not found or another entry was already updated.
 
 
 ###submitChanges
