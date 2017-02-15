@@ -476,20 +476,20 @@
 				var fnCreateEvents = function(sEventId) {
 					sEventId = sEventId.charAt(0).toUpperCase() + sEventId.slice(1);
 					CRUDModel.prototype["attach"+sEventId] = function(oData, fnFunction, oListener) {
-						this.attachEvent(sEventId, oData, fnFunction, oListener);
+						return this.attachEvent(sEventId, oData, fnFunction, oListener);
 					};
 					CRUDModel.prototype["attach"+sEventId+"Once"] = function(oData, fnFunction, oListener) {
-						this.attachEventOnce(sEventId, oData, fnFunction, oListener);
+						return this.attachEventOnce(sEventId, oData, fnFunction, oListener);
 					};
 					CRUDModel.prototype["detach"+sEventId] = function(oData, fnFunction, oListener) {
-						this.detachEvent(sEventId, oData, fnFunction, oListener);
+						return this.detachEvent(sEventId, oData, fnFunction, oListener);
 					};
 					CRUDModel.prototype["detach"+sEventId+"Once"] = function(oData, fnFunction, oListener) {
-						this.detachEventOnce(sEventId, oData, fnFunction, oListener);
+						return this.detachEventOnce(sEventId, oData, fnFunction, oListener);
 					};
 					CRUDModel.prototype["fire"+sEventId] = function(mParameters, bAllowPreventDefault, bEnableEventBubbling) {
 						_static.debugLog(sEventId+" event fired");
-						this.fireEvent(sEventId, mParameters, bAllowPreventDefault, bEnableEventBubbling);
+						return this.fireEvent(sEventId, mParameters, bAllowPreventDefault, bEnableEventBubbling);
 					};
 				};
 				$.each(mSupportedEvents, function(i, sEvent) {
@@ -1410,7 +1410,7 @@
 								}
 							},
 							error   : mParameters.error || null,
-							async   : ("async" in mParameters) ? mParameters.async : false // def true
+							async   : ("async" in mParameters) ? mParameters.async : true // def true
 						}
 					);
 				}	
