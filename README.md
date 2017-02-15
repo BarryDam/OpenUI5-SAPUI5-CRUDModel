@@ -108,7 +108,11 @@ Type 				| Variable 							| Description
 *{string}*			| **sPath** 						| Name of the path to the collection.
 *{object}*			| **oData** 						| An object that specifies a set of properties or the entry
 
-###hasPendingChanges
+###hasPendingChanges()
+Checks if there exist pending changes in the model created by the setProperty method.
+
+**returns**
+*{boolean}*	true/false
 
 
 ###login
