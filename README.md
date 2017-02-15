@@ -99,6 +99,7 @@ oServiceExample.attachLogin(function() {
 [reload](#reload),
 [remove](#remove),
 [update](#update)
+[setUseBatch](#setUseBatch)
 
 Note: nl.barrydam.CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) all methods of the JSONModel can also be used except the "loadData" method
 
@@ -258,7 +259,7 @@ Type 				| Variable 							| Description
 *{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
 *{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
 
-###update(sPath, oData, mParameters?)
+### update(sPath, oData, mParameters?)
 Trigger a PUT request to the odata service that was specified in the model constructor. Please note that deep updates are not supported and may not work. These should be done seperate on the entry directly.
 
 **Parameters:**
