@@ -179,7 +179,7 @@ Type 				| Variable 							| Description
 Logs the user out when the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented.
 
 
-###read(sPath, mParameters?)
+### read(sPath, mParameters?)
 Trigger a GET request to the odata service that was specified in the model constructor. The data will not be stored in the model. The requested data is returned with the response.
 
 **Parameters:**
@@ -191,6 +191,7 @@ Type 				| Variable 							| Description
 *{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
 *{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
+*{array}*			| **mParameters.filters?**			| An array of sap.ui.model.Filter to be included in the request URL
 
 
 ###setProperty(sPath, oValue)
