@@ -13,7 +13,7 @@ jQuery.sap.require("nl.barrydam.model.CRUDModel");
 ```
 
 ## Example
-In your Component.js:
+In your Component.js: 
 ```javascript
 var oServiceExample = new nl.barrydam.model.CRUDModel("http://www.yourapirurl.com/service/");
 this.setModel(oServiceExample, "ServiceExample");
@@ -26,7 +26,7 @@ oServiceExample.attachLogout(function(){
 });
 oServiceExample.attachLogin(function(){
 	var oRouter = that.getRouter();
-	oRouter.initialize(); // restart the trouter
+	oRouter.initialize(); // restart the router
 	oRouter.navTo('Home');
 });
 ```
@@ -44,10 +44,7 @@ In your xml view the following will auto trigger a get request to the service an
 	    path:  'firstName',
 	    descending: false
     }]
-}"
-
-
->
+}">
 	<items>
 		<StandardListItem title="{ServiceExample>firstName} {ServiceExample>lastName}" />
 	</items>
