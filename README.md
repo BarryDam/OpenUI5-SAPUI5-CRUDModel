@@ -218,7 +218,7 @@ Type 				| Variable 							| Description
 *{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
 
 ###update(sPath, oData, mParameters?)
-Trigger a PUT/MERGE request to the odata service that was specified in the model constructor. Please note that deep updates are not supported and may not work. These should be done seperate on the entry directly.
+Trigger a PUT request to the odata service that was specified in the model constructor. Please note that deep updates are not supported and may not work. These should be done seperate on the entry directly.
 
 **Parameters:**
 
