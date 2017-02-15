@@ -380,9 +380,9 @@
 					 * Metadata settings
 					 * @type {Object}
 					 */
-					metadata : {
-						publicMethods : ["submitChanges", "resetChanges", "reload", "remove", "update"]
-					},
+					// metadata : {
+					// 	publicMethods : ["submitChanges", "resetChanges", "reload", "remove", "update"]
+					// },
 
 					/**
 					 * Constructor fired on object creation

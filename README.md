@@ -22,12 +22,42 @@ Type 				| Variable 							| Description
 *{string}*			| **sServiceUrl** 					| Base uri of the service to request data from; additional URL parameters appended here will be appended to every request can be passed with the mParameters object as well
 *{object}*			| **mParameters?**					| (optional) a map which contains the following parameter properties:
 *{string}*			| **mParameters.bindingMode?**		| Set the binding mode for the model (OneWay or TwoWay, default = TwoWay)
-*{string}*			| **mParameters.user**				| User for the service
-*{string}*			| **mParameters.password**			| Password for service
-*{string}*			| **mParameters.primaryKey**		| Database primary key (default = 'id')
-*{map}*				| **mParameters.serviceUrlParams**	| Map of URL parameters - these parameters will be attached to all requests
-*{boolean}*			| **mParameters.useBatch**			| When true all POST PUT and DELETE requests will be sent in batch requests (default = false)
+*{string}*			| **mParameters.user?**				| User for the service
+*{string}*			| **mParameters.password?**			| Password for service
+*{string}*			| **mParameters.primaryKey?**		| Database primary key (default = 'id')
+*{map}*				| **mParameters.serviceUrlParams?**	| Map of URL parameters - these parameters will be attached to all requests
+*{boolean}*			| **mParameters.useBatch?**			| When true all POST PUT and DELETE requests will be sent in batch requests (default = false)
 
+## Events
+The following events can be triggered by the CRUDModel: Login, Logout, MetadataFailed, MetadataLoaded, Reload.
+
+You can catch them by using the following methods: attachLogin, attachLogout, attachMetadataFailed, attachMetadataLoaded, attachReload.
+
+Or once: You can catch them by using the following methods: attachLoginOnce, attachLogoutOnce, attachMetadataFailedOnce, attachMetadataLoadedOnce, attachReloadOnce.
+
+**Example**
+```javascript
+oCRUD.attachLogin(function() {
+	alert("User has logged in");
+});
+```
+
+## Method detail
+
+clearBatch
+create
+createBatchOperation
+createEntry
+hasPendingChanges
+login
+logout
+read
+setProperty
+submitChanges
+resetChanges
+reload
+remove
+update
 
 
 ## BUY ME A BEER
