@@ -182,6 +182,17 @@ Type 				| Variable 							| Description
 **Returns** *{object}* An object which has an abort function to abort the current request.
 
 
+###reload
+Reloads the data from the server and keeps the colleted changes.
+
+**Parameters:**
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
+*{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
+
+
 ###remove(sPath, mParameters?)
 Trigger a DELETE request to the odata service that was specified in the model constructor.
 
@@ -206,22 +217,19 @@ Type 				| Variable 							| Description
 *{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
 *{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
 
-
-###reload
-Reloads the data from the server and keeps the colleted changes.
+###update(sPath, oData, mParameters?)
+Trigger a PUT/MERGE request to the odata service that was specified in the model constructor. Please note that deep updates are not supported and may not work. These should be done seperate on the entry directly.
 
 **Parameters:**
 
 Type 				| Variable 							| Description
 --- 				| --- 								| ---
-*{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
-*{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
-
-
-
-
-###update
-
+*{string}*			| **sPath** 						| A string containing the path to the data that should be updated. The path is concatenated to the sServiceUrl which was specified in the model constructor.
+*{object}*			| **oData** 						| Data of the entry that should be updated.
+*{map}*				| **mParameters?** 					| Optional, can contain the following attributes:
+*{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
+*{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
+*{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
 
 
 ## BUY ME A BEER
