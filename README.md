@@ -158,6 +158,8 @@ Before updating a different entry the existing changes of the current entry have
 
 IMPORTANT: All pending changes are resetted in the model if the application triggeres any kind of refresh on that entry. Make sure to submit the pending changes first. To determine if there are any pending changes call the [hasPendingChanges](#hasPendingChanges) method.
 
+**Parameters:**
+
 Type 				| Variable 							| Description
 --- 				| --- 								| ---
 *{string}*			| **sPath** 						| Path of the property to set
@@ -169,6 +171,8 @@ Type 				| Variable 							| Description
 ###submitChanges(fnSuccess?, fnError?)
 Submits the collected changes which were collected by the setProperty method. A MERGE request will be triggered to only update the changed properties. If a URI with a $expand System Query Option was used then the expand entries will be removed from the collected changes. Changes to this entries should be done on the entry itself. So no deep updates are supported.
 
+**Parameters:**
+
 Type 				| Variable 							| Description
 --- 				| --- 								| ---
 *{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
@@ -177,8 +181,15 @@ Type 				| Variable 							| Description
 **Returns** *{object}* An object which has an abort function to abort the current request.
 
 
-###resetChanges
+###resetChanges(fnSuccess?, fnError?)
+Resets the collected changes by the setProperty method and reloads the data from the server.
 
+**Parameters:**
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
+*{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
 
 ###reload
 
