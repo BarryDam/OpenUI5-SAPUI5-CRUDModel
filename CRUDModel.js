@@ -1222,16 +1222,19 @@
 			/**
 			 * Resets the collected changes by the setProperty method 
 			 * @param  {function} fnSuccess a callback function which is called when the data has been successfully resetted. The handler can have the following parameters: oData and response.
-			 * TODO > @param  {function} fnError   a callback function which is called when the request failed
 			 */
 			CRUDModel.prototype.resetChanges = function(fnSuccess, fnError) {
 				if (typeof fnSuccess !== 'function') {
 					fnSuccess = function(){};
 				}
-				if (! this.hasPendingChanges()) {
-					fnSuccess();
-				}
-				this.reload.apply(this, arguments);
+				var that = this;
+				this.reload.call(
+					this, 
+					function onSucces(){
+						that.clearBatch();
+					},
+					fnError
+				);
 			};
 
 			
