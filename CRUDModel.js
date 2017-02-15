@@ -825,6 +825,12 @@
 				return false;
 			};
 
+			/**
+			 * When the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented, you first need to login
+			 * @param  {string} sUsername   the user
+			 * @param  {string} sPassword   the password
+			 * @param  {object} mParameters success, error and async
+			 */
 			CRUDModel.prototype.login = function(sUsername, sPassword, mParameters) {
 				mParameters = (typeof mParameters != "object") ? {} : mParameters;
 				var that = this;
@@ -844,7 +850,7 @@
 						}
 					},
 					error		: mParameters.error || null,
-					async		: ("async" in mParameters) ? mParameters.async  : true // def true
+					async		: ("async" in mParameters) ? mParameters.async  : false // def false
 				});
 			};
 
