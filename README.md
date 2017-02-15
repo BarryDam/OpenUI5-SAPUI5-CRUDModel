@@ -166,7 +166,15 @@ Type 				| Variable 							| Description
 **Returns** *{boolean}*	true if the value was set correctly and false if errors occurred like the entry was not found or another entry was already updated.
 
 
-###submitChanges
+###submitChanges(fnSuccess?, fnError?)
+Submits the collected changes which were collected by the setProperty method. A MERGE request will be triggered to only update the changed properties. If a URI with a $expand System Query Option was used then the expand entries will be removed from the collected changes. Changes to this entries should be done on the entry itself. So no deep updates are supported.
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
+*{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. The handler can have the parameter: oError which contains additional error information
+
+**Returns** *{object}* An object which has an abort function to abort the current request.
 
 
 ###resetChanges
