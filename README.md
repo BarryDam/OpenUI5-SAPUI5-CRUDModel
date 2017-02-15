@@ -1,6 +1,8 @@
-# OpenUI5-SAPUI5-CRUDModel
+# nl.barrydam.CRUDModel (OpenUI5-SAPUI5-CRUDModel)
 
-[OpenUI5](http://openui5.org/)/[SAPUI5](https://sapui5.hana.ondemand.com) Model implementation for [mevdschee/php-crud-api](https://github.com/mevdschee/php-crud-api)
+[OpenUI5](http://openui5.org/)/[SAPUI5](https://sapui5.hana.ondemand.com) Model implementation for [mevdschee/php-crud-api](https://github.com/mevdschee/php-crud-api).
+
+The CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) and has a similair way of using like [sap.ui.model.odata.ODataModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.odata.ODataModel.html)
 
 ## Setup in UI5
 1. Add the CRUDModel.js file to you project folder library/bd/model/
@@ -10,7 +12,35 @@ jQuery.sap.registerModulePath("nl.barrydam", "library/bd/");
 jQuery.sap.require("nl.barrydam.model.CRUDModel");
 ```
 
-## Contructor
+## Example
+In any controller (for example your component.js):
+```javascript
+var oServiceExample = new nl.barrydam.model.CRUDModel("http://www.yourapirurl.com/service/");
+this.setModel(oServiceExample, "ServiceExample");
+```
+In your xml view the following will auto trigger a get request to the service and output your results in a list:
+```xml
+<List
+ items="{
+	path : 'ServiceExample>/students',
+	filters: [{
+        path: 'gender',
+        operator: 'EQ',
+        value1: 'Male'
+    }],
+    sorter: [{
+	    path:  'firstName',
+	    descending: false
+    }]
+}"
+>
+	<items>
+		<StandardListItem title="{ServiceExample>firstName} {ServiceExample>lastName}" />
+	</items>
+</List>
+```
+
+## Constructor
 **new nl.barrydam.model.CRUDModel(sServiceUrl, mParameters?)**
 
 Constructor for a new CRUDModel.
