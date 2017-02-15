@@ -6,9 +6,6 @@
  * In your Component.js add:
  * jQuery.sap.registerModulePath("nl.barrydam", "library/bd/");
  * jQuery.sap.require("nl.barrydam.model.CRUDModel");
- * 
- * jQuery.sap.registerModulePath('com.barrydam.sap.model.json', 'PATH_TO_BARRYDAM_FOLDER');
- * jQuery.sap.require("nl.barydam.CRUDModel");
  */
 (function($, windows, undefined){
 	jQuery.sap.declare('nl.barrydam.model.CRUDModel');
