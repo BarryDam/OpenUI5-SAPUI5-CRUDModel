@@ -16,7 +16,9 @@ jQuery.sap.require("nl.barrydam.model.CRUDModel");
 Constructor for a new CRUDModel.
 
 **Parameters:**
-{string} sServiceUrl	base uri of the service to request data from; additional URL parameters appended here will be appended to every request can be passed with the mParameters object as well
+
+*{string}*	| **sServiceUrl** 	| base uri of the service to request data from; additional URL parameters appended here will be appended to every request can be passed with the mParameters object as well
+*{string}*	| **sServiceUrl** 	| base uri of the service to request data from; additional URL parameters appended here will be appended to every request can be passed with the mParameters object as well
 
 
 ## BUY ME A BEER
