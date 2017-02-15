@@ -58,10 +58,11 @@ oCRUD.attachLogin(function() {
 [reload](#reload),
 [remove](#remove),
 [update](#update)
-
+---
 
 ###clearBatch()
 Removes all operations in the current batch.
+---
 
 ###create(sPath, oData, mParmeters?)
 Trigger a POST request to the CRUD service that was specified in the model constructor. Please note that deep creates are not supported and may not work. 
@@ -76,6 +77,7 @@ Type 				| Variable 							| Description
 *{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
 *{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
+---
 
 ###createBatchOperation(sPath, sMethod, oData?)
 Creates a single batch operation (read or change operation) which can be used in a batch request.
@@ -87,6 +89,7 @@ Type 				| Variable 							| Description
 *{string}*			| **sPath** 						| 	A string containing the path to the collection where an entry should be created. The path is concatenated to the sServiceUrl which was specified in the model constructor.
 *{string}*			| **sMethod** 						| for the batch operation. Possible values are GET, PUT, MERGE, POST, DELETE
 *{object}*			| **oData?** 						| optional data payload which should be created, updated, deleted in a change batch operation.
+---
 
 ###createEntry(sPath, oData?)
 Creates a new entry object which is described by the metadata of the entity type of the specified sPath Name. A context object is returned which can be used to bind against the newly created object.
@@ -107,13 +110,14 @@ Type 				| Variable 							| Description
 --- 				| --- 								| ---
 *{string}*			| **sPath** 						| Name of the path to the collection.
 *{object}*			| **oData** 						| An object that specifies a set of properties or the entry
+---
 
 ###hasPendingChanges()
 Checks if there exist pending changes in the model created by the setProperty method.
 
 **returns**
 *{boolean}*	true/false
-
+---
 
 ###login
 
