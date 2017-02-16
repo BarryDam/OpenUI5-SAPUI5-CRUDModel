@@ -339,13 +339,9 @@
 						GT         : "gt",
 						LE         : "le",
 						LT         : "lt",
-						NE         : "", // NOT SUPPORTED BY PHP API
+						NE         : "neq", // NOT SUPPORTED BY PHP API
 						StartsWith : "sw",
 					};
-					if (oFilter.sOperator == "NE") { /* TODO build solution in api.php */
-						_static.debugLog("API: Filter operator NE not supported", "_static.parseUI5Filters");
-						return "";
-					}
 					return oFilter.sPath+','+oOperators[oFilter.sOperator]+','+oFilter.oValue1+((oFilter.sOperator=='BT')?','+oFilter.oValue2:'');
 				}
 				var aString = [],
@@ -914,7 +910,7 @@
 			 * @param  {boolean}	mParameters.async?		Default: true	true for asynchronous requests.
 			 * @param  {function}	mParameters.success?	a callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: mResponse.
 			 * @param  {function}	mParameters.error?		a callback function which is called when an error has occurred
-			 * TODO filters sorters and urlParameters
+			 * TODO sorters and urlParameters
 			 */
 			CRUDModel.prototype.read = function(sPath, mParameters) {
 				// get the db columnn
