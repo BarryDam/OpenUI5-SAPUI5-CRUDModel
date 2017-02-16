@@ -16,27 +16,31 @@
 			"use strict";
 
 			
-			var mDefaultParameters = { 
-					// the API auto generates setters and getters for all parameters
-					// for example user will have a setUsername(value) and getUsername() method available
-					// these params can be passed along with the constructor 
-					bindingMode			: "TwoWay", // only TwoWay or OneWay
-					password			: '',		// password when a auto-login is needed 
-					primaryKey			: "id",		// DB row primary key
-					serviceUrl			: '',		// URL To api
-					serviceUrlParams	: {},		// additional URL params
-					useBatch			: false,	//when true all POST PUT and DELETE requests will be sent in batch requests (default = false),
-					user				: ''		// username when a auto-login is needed
-				}, 
-				mSupportedEvents		= [
-					"Login",			// attachLogin attachLoginOnce fireLogin
-					"Logout",			// attachLogout attachLogoutOnce fireLogout
-					"MetadataFailed",	// attachMetadataFailed attachMetadataFailedOnce fireMetaDatafailed
-					"MetadataLoaded",	// attachMetadataLoaded attachMetadataLoadedOnce fireMetadataLoaded
-					"Reload"			// attachReload attachReloadOnce fireReload
-				], // these events will be auto created
-				mUnsupportedOperations	= ["loadData"],	// methods from JSONModel which cannot be used
-				_static					= {}; // internal methods which can be used inside the CRUDModel methods
+			var _variables = { // internal variables
+					mDefaultParameters : { 
+						// the API auto generates setters and getters for all parameters
+						// for example user will have a setUsername(value) and getUsername() method available
+						// these params can be passed along with the constructor 
+						bindingMode			: "TwoWay", // only TwoWay or OneWay
+						password			: '',		// password when a auto-login is needed 
+						primaryKey			: "id",		// DB row primary key
+						serviceUrl			: '',		// URL To api
+						serviceUrlParams	: {},		// additional URL params
+						useBatch			: false,	//when true all POST PUT and DELETE requests will be sent in batch requests (default = false),
+						user				: ''		// username when a auto-login is needed
+					},
+					// these events will be auto created
+					mSupportedEvents : [
+						"Login",			// attachLogin attachLoginOnce fireLogin
+						"Logout",			// attachLogout attachLogoutOnce fireLogout
+						"MetadataFailed",	// attachMetadataFailed attachMetadataFailedOnce fireMetaDatafailed
+						"MetadataLoaded",	// attachMetadataLoaded attachMetadataLoadedOnce fireMetadataLoaded
+						"Reload"			// attachReload attachReloadOnce fireReload
+					],
+					mUnsupportedOperations : ["loadData"],	// methods from JSONModel which cannot be used
+					csrf: null // csrf token
+				},
+				_methods = {}; // internal methods which can be used inside the CRUDModel methods
 			
 			
 			/**
@@ -45,7 +49,7 @@
 			 * @param {string} key   key
 			 * @param {string} value value
 			 */
-			_static._set = function(oProxy, key, value) {
+			_methods._set = function(oProxy, key, value) {
 				switch (key) {
 					// determine the service base url and its parameters
 					case 'serviceUrl' :
@@ -81,13 +85,13 @@
 			 *  
 			 * @param  object  oProxy the created nl.barydam.CRUDModel object
 			 */
-			_static.createSettersAndGetters = function(oProxy) {
-				$.each(mDefaultParameters, function(key) { // $.each used in stead of for! else key would be allways the last iteration
+			_methods.createSettersAndGetters = function(oProxy) {
+				$.each(_variables.mDefaultParameters, function(key) { // $.each used in stead of for! else key would be allways the last iteration
 					var f		= key.charAt(0).toUpperCase(),
 						sSetter	= 'set'+f+key.substr(1),
 						sGetter = 'get'+f+key.substr(1);
 					oProxy[sSetter] = function(value) {
-						_static._set(oProxy, key, value);						
+						_methods._set(oProxy, key, value);						
 					};
 					oProxy[sGetter] = function() {
 						return oProxy._mSettings[key];
@@ -102,7 +106,7 @@
 			 * @param  {string} Method   Method which calls the log
 			 * @return {object} jQuery.sap.log.Logger	The log instance
 			 */
-			_static.debugLog = function(sMessage, Method) {
+			_methods.debugLog = function(sMessage, Method) {
 				return jQuery.sap.log.debug(
 					sMessage, 
 					"",
@@ -119,7 +123,7 @@
 			 * @return {xhr object}          
 			 */
 			var __reloadExecBind = []; // hold the binds and will be reloaded when this.reload is called
-			_static.reloadBinds = function(fnSuccess, fnError) {
+			_methods.reloadBinds = function(fnSuccess, fnError) {
 				fnSuccess	= (typeof fnSuccess == "function") ? fnSuccess : function(){};
 				fnError		= (typeof fnError == "function") ? fnError : function(){};
 				if (__reloadExecBind.length === 0) {
@@ -127,7 +131,7 @@
 				} else {
 					var aPromises = [];
 					$.each(__reloadExecBind, function(i, o) {
-						aPromises.push(_static.execBind(o.oProxy, o.sPath, o.aSorters, o.aFilters, true));
+						aPromises.push(_methods.execBind(o.oProxy, o.sPath, o.aSorters, o.aFilters, true));
 					});
 					$.when.apply($, aPromises)
 						.done(function() { 
@@ -148,17 +152,17 @@
 						});
 				}
 			};
-			_static.execBind = function(oProxy, sPath, aSorters, aFilters, bAttachReload) {
-				var mPath	= _static.parsePath(sPath),
+			_methods.execBind = function(oProxy, sPath, aSorters, aFilters, bAttachReload) {
+				var mPath	= _methods.parsePath(sPath),
 					sUrl	= mPath.Table;
 				if (! sUrl) { return; }
 				// Filter
 				if ( $.isArray(aFilters) && aFilters.length ) {
-					sUrl += "?"+_static.parseUI5Filters(aFilters);
+					sUrl += "?"+_methods.parseUI5Filters(aFilters);
 				}
 				if (! bAttachReload) { // refresh after login
 					oProxy.attachLogin(function() { 
-						_static.execBind(oProxy, sPath, aSorters, aFilters, true);
+						_methods.execBind(oProxy, sPath, aSorters, aFilters, true);
 					});
 					__reloadExecBind.push({
 						oProxy		: oProxy,
@@ -168,7 +172,7 @@
 					});
 					// oProxy.attachReload(function() { 
 					// 	console.log(arguments);
-					// 	_static.execBind(oProxy, sPath, aSorters, aFilters, true);
+					// 	_methods.execBind(oProxy, sPath, aSorters, aFilters, true);
 					// });
 				}				
 				return oProxy._serviceCall(
@@ -182,7 +186,7 @@
 								"/"+mPath.Table,  
 								$.extend(
 									true, 
-									_static.parseCRUDresultList(oProxy, mPath.Table, mResponse),
+									_methods.parseCRUDresultList(oProxy, mPath.Table, mResponse),
 									oProxy.getProperty("/"+mPath.Table)
 								)
 							);
@@ -199,7 +203,7 @@
 			 * @param  {object} mData		Unprocessed entry
 			 * @return {object} mData		Processed entry
 			 */
-			_static.generateCreateByMetadata = function(oProxy, sTableName, mData) {
+			_methods.generateCreateByMetadata = function(oProxy, sTableName, mData) {
 				mData = mData || {};
 				if (sTableName in oProxy._oCRUDdata.oColumns) {
 					var oNew = {};
@@ -221,7 +225,7 @@
 			 * @param  {object} mResponse  Responsedata from CRUD
 			 * @return {object} processed json object
 			 */
-			_static.parseCRUDresultList = function(oProxy, sTableName, mResponse) {
+			_methods.parseCRUDresultList = function(oProxy, sTableName, mResponse) {
 				if (typeof mResponse == "object" && sTableName in mResponse && 'records' in mResponse[sTableName] && 'columns' in mResponse[sTableName]) {
 					var mRows	= mResponse[sTableName].records,
 						mColums = mResponse[sTableName].columns;
@@ -257,17 +261,17 @@
 			 * @param  {[type]} mListResult [description]
 			 * @return {[type]}           [description]
 			 */
-			_static.parseMetadataToColumndata = function(oProxy, mListResult) {
+			_methods.parseMetadataToColumndata = function(oProxy, mListResult) {
 				if (! ("paths" in mListResult)) {
 					return;
 				}
 				var oReturn		= {},
 					sPrimaryKey = oProxy.getPrimaryKey();
 				$.each(mListResult.paths, function(sPath, o){
-					var mPath = _static.parsePath(sPath);
+					var mPath = _methods.parsePath(sPath);
 					if (mPath.Id) { return; /*{id}*/ }
 					if (! ("post" in o) || ! ("parameters" in o.post) || typeof o.post.parameters[0] != "object") { return; } 
-					var sTable = _static.parsePath(sPath).Table;
+					var sTable = _methods.parsePath(sPath).Table;
 					oReturn[sTable] = Object.keys(o.post.parameters[0].schema.properties);
 					var iPrimary = oReturn[sTable].indexOf(sPrimaryKey);
 					if (iPrimary !== -1) {
@@ -292,7 +296,7 @@
 			 * @param  {string}		path
 			 * @return {object}     { Table: 'tablename', Id: "id", Path: "/tablename/id" }
 			 */
-			_static.parsePath = function(sPath) {
+			_methods.parsePath = function(sPath) {
 				// turn /example('1') to /example/1
 				sPath = sPath.replace("('", "/").replace("'')", "");
 				var aPath = sPath.split("/"),
@@ -325,7 +329,7 @@
 			 * @param	{array}		afilters	array containing sap.ui.model.Filter objects
 			 * @returns {string}	filter		string example filter=naam,eq,Barry
 			 */
-			_static.parseUI5Filters = function(aFilters) {
+			_methods.parseUI5Filters = function(aFilters) {
 				if (! (aFilters instanceof Array) || aFilters.length === 0) {
 					return "";
 				}
@@ -401,7 +405,7 @@
 					},
 					/**
 					 * settings object is set in the constructor and is a merge of 
-					 * - mDefaultParameters (defined within this scope)
+					 * - _variables.mDefaultParameters (defined within this scope)
 					 * - mParameters (passed in constructor)
 					 * - and _mSettings
 					 * all values can be set and get by magic methods
@@ -420,12 +424,12 @@
 					/**
 					 * Constructor fired on object creation
 					 * @param  string sServiceUrl The URL to the JSON service
-					 * @param  object mParameters overwrite settings for the mDefaultParameters value
+					 * @param  object mParameters overwrite settings for the _variables.mDefaultParameters value
 					 */
 					constructor: function(sServiceUrl, mParameters) {
 						JSONModel.apply(this); // do not pass arguments
 						// create setters and getters on object creation
-						_static.createSettersAndGetters(this);
+						_methods.createSettersAndGetters(this);
 						// reset settings (needed for getOne method)
 						this._mSettings = {
 
@@ -435,22 +439,22 @@
 						if (typeof mParameters !== 'object')
 							mParameters = {};
 						// Set the settings and check if passed param is allowed to set
-						// any passed parameter which is not in the mDefaultParameters
+						// any passed parameter which is not in the _variables.mDefaultParameters
 						// will not be stored			
-						var	aDefaultParametersKeys	= Object.keys(mDefaultParameters);
+						var	aDefaultParametersKeys	= Object.keys(_variables.mDefaultParameters);
 						for (var kParameter in mParameters) {
-							if (aDefaultParametersKeys.indexOf(kParameter) !== -1 && typeof mParameters[kParameter] === typeof mDefaultParameters[kParameter]) {
-								_static._set(this, kParameter, mParameters[kParameter]);
+							if (aDefaultParametersKeys.indexOf(kParameter) !== -1 && typeof mParameters[kParameter] === typeof _variables.mDefaultParameters[kParameter]) {
+								_methods._set(this, kParameter, mParameters[kParameter]);
 							}
 						}
 						// merge the mDefaultSettings with the _mSettings to make sure whe have every needed param
-						this._mSettings	= $.extend(true, {}, mDefaultParameters, this._mSettings);
+						this._mSettings	= $.extend(true, {}, _variables.mDefaultParameters, this._mSettings);
 						// metadata
 						var that			= this, 
 							fnLoadMetadata	= function() {
-								that._serviceCall("__CRUDModel_METADATA__", {
+								that._serviceCall("", {
 									success: function(m) {
-										that._oCRUDdata.oColumns = _static.parseMetadataToColumndata(that, m);
+										that._oCRUDdata.oColumns = _methods.parseMetadataToColumndata(that, m);
 										that.fireMetadataLoaded();
 									},
 									error: function(xhr, textStatus, httpStatus) {
@@ -471,15 +475,12 @@
 								this.getUser(), 
 								this.getPassword(), 
 								{ 
-									async: true, // keep this true 
-									success: function() {			
-										fnLoadMetadata();
-									}
+									async: true // keep this true 
 								}
 							);
-						} else {
-							fnLoadMetadata();	
-						}				
+						} 
+						fnLoadMetadata();	
+									
 						
 					}
 				}
@@ -489,14 +490,14 @@
 			/**
 			 * Disable parent methods which are not allowed to use
 			 */
-			if (mUnsupportedOperations.length) {
+			if (_variables.mUnsupportedOperations.length) {
 				var fnDisableOperation = function(sOperation) {
 					if (! CRUDModel.hasOwnProperty(sOperation)) { return; }
 					CRUDModel.prototype[sOperation] = function() {
 						throw new Error("Unsupported operation: v4.ODataModel#isList");
 					};
 				};
-				$.each(mUnsupportedOperations, function(i, sOperation) {
+				$.each(_variables.mUnsupportedOperations, function(i, sOperation) {
 					fnDisableOperation(sOperation);
 				});
 			}
@@ -505,7 +506,7 @@
 			/**
 			 * Create Event attachers and detachers and fires
 			 */			
-			if (mSupportedEvents.length) {
+			if (_variables.mSupportedEvents.length) {
 				var fnCreateEvents = function(sEventId) {
 					sEventId = sEventId.charAt(0).toUpperCase() + sEventId.slice(1);
 					CRUDModel.prototype["attach"+sEventId] = function(oData, fnFunction, oListener) {
@@ -521,11 +522,11 @@
 						return this.detachEventOnce(sEventId, oData, fnFunction, oListener);
 					};
 					CRUDModel.prototype["fire"+sEventId] = function(mParameters, bAllowPreventDefault, bEnableEventBubbling) {
-						_static.debugLog(sEventId+" event fired");
+						_methods.debugLog(sEventId+" event fired");
 						return this.fireEvent(sEventId, mParameters, bAllowPreventDefault, bEnableEventBubbling);
 					};
 				};
-				$.each(mSupportedEvents, function(i, sEvent) {
+				$.each(_variables.mSupportedEvents, function(i, sEvent) {
 					fnCreateEvents(sEvent);
 				});
 			}
@@ -541,13 +542,6 @@
 				mRequestParams = mRequestParams || {};
 				mRequestParams.error = (typeof mRequestParams.error == "function") ? mRequestParams.error : function(){} ;
 				mRequestParams.success = (typeof mRequestParams.success == "function") ? mRequestParams.success : function(){} ;
-				if (! sUrl) {
-					mRequestParams.error();
-					return;
-				}
-				if (sUrl == "__CRUDModel_METADATA__") { // needed to load the metadata
-					sUrl = "";
-				}
 				var aSplitGetParams		= sUrl.split("?"),
 					url					= aSplitGetParams.shift(),
 					oURLParams          = this.getServiceUrlParams(),
@@ -555,7 +549,7 @@
 					aGetParams			= [],
 					that				= this;
 				// remove first slash
-				if (url.charAt(0) == "/") {
+				if (url && url.charAt(0) == "/") {
 					url.substr(1);
 				}
 				// prepend serviceUrl
@@ -582,6 +576,7 @@
 					cache		: false, // NEVER!
 					async		: bAsync,
 					success		: mRequestParams.success,
+					headers		: (_variables.csrf) ? { "X-CSRF-TOKEN" : _variables.csrf } : {},
 					error		: function(xhr, textStatus, httpStatus) {
 						if (httpStatus == "Unauthorized") {
 							if (bAsync) {
@@ -620,7 +615,7 @@
 			* Lists are allways called from the api
 			*/
 			CRUDModel.prototype.bindList = function(sPath, oContext, aSorters, aFilters, mParameters) {
-				_static.execBind(this, this.resolve(sPath, oContext), aSorters, aFilters);
+				_methods.execBind(this, this.resolve(sPath, oContext), aSorters, aFilters);
 				return JSONModel.prototype.bindList.apply(this, arguments);
 			};
 
@@ -634,14 +629,14 @@
 				sPath = this.resolve(sPath, oContext);
 				if (sPath) {
 					//console.log(sPath);
-					var	mPath	= _static.parsePath(sPath);
+					var	mPath	= _methods.parsePath(sPath);
 					if (! mPath.Id) {
 						return oParent;
 					}
 					var mModel = this.getProperty("/"+mPath.Table),
 						that	= this;
 					if (typeof mModel == "undefined" || ! (mPath.Id in mModel)) {
-						_static.execBind(this, mPath.Table, null, [
+						_methods.execBind(this, mPath.Table, null, [
 							new sap.ui.model.Filter(this.getPrimaryKey(), "EQ", mPath.Id)
 						]);
 					}
@@ -687,14 +682,14 @@
 				mParameters.success = (typeof mParameters.success == "function") ? mParameters.success : function(){};
 				mParameters.error	= (typeof mParameters.error == "function") ? mParameters.error : function(){};
 				oData				= (typeof oData == "object") ? oData : {};
-				var mPath	= _static.parsePath(sPath),
+				var mPath	= _methods.parsePath(sPath),
 					that	= this;
 				if (! mPath.Table) { 
 					mParameters.error();
 					return null;
 				}
 				// create new entry by metadata
-				oData = _static.generateCreateByMetadata(this, mPath.Table, oData);
+				oData = _methods.generateCreateByMetadata(this, mPath.Table, oData);
 				// batch or direct
 				if (this.getUseBatch()) { // batch mode
 					var any = this.createBatchOperation(sPath, "POST" , oData);
@@ -732,7 +727,7 @@
 			 */
 			CRUDModel.prototype.createBatchOperation = function(sPath, sMethod, oData) {
 				var aMethods	= ["PUT", "POST", "DELETE"],
-					mPath		= _static.parsePath(sPath);
+					mPath		= _methods.parsePath(sPath);
 				oData = (typeof oData == "object") ? oData : {};
 				oData = $.extend(true, {}, oData);
 				// Proceed Checks
@@ -824,10 +819,10 @@
 			 * @return {[type]}       [description]
 			 */
 			CRUDModel.prototype.createEntry = function(sPath, oData) {
-				var mPath = _static.parsePath(sPath);
+				var mPath = _methods.parsePath(sPath);
 				if (! mPath.Table) { return null; }
 				// create by metadata
-				oData = _static.generateCreateByMetadata(this, mPath.Table, oData);
+				oData = _methods.generateCreateByMetadata(this, mPath.Table, oData);
 				var id = this.createBatchOperation(sPath, "POST" , oData);
 				oData[this.getPrimaryKey()] = id;
 				JSONModel.prototype.setProperty.call(this, "/"+mPath.Table+"/"+id, oData);
@@ -867,16 +862,14 @@
 			CRUDModel.prototype.login = function(sUsername, sPassword, mParameters) {
 				mParameters = (typeof mParameters != "object") ? {} : mParameters;
 				var that = this;
-				this._serviceCall("?_a=login", {
-					type: "POST",
-					data: {
-						username	: sUsername,
-						password	: sPassword						
+				this._serviceCall("", {
+					type		: "POST",
+					data		: {
+						username : sUsername,
+						password : sPassword						
 					},
 					success		: function(sCSRF) {
-						var mURLparams = that.getServiceUrlParams();
-						mURLparams.csrf = sCSRF;
-						that.setServiceUrlParams(mURLparams);
+						_variables.csrf = sCSRF;
 						that.fireLogin();
 						if (typeof mParameters.success == "function") {
 							mParameters.success();
@@ -889,16 +882,11 @@
 
 			/**
 			 * Logout method
-			 * @return {[type]} [description]
 			 */
 			CRUDModel.prototype.logout = function() {
-				this._serviceCall("?_a=logout");
-				// var mURLparams = that.getServiceUrlParams();
-				// if ("csrf" in mURLparams) {
-				// 	delete mURLparams.csrf;
-				// }
-				// that.setServiceUrlParams(mURLparams);
-				// logout
+				// Logout is done by calling a post request to the api without the csrf token
+				_variables.csrf = null;
+				this._serviceCall("", { type : "POST" });
 				this.fireLogout();
 			};
 
@@ -914,7 +902,7 @@
 			 */
 			CRUDModel.prototype.read = function(sPath, mParameters) {
 				// get the db columnn
-				var mPath = _static.parsePath(sPath);
+				var mPath = _methods.parsePath(sPath);
 				// Check and set api params
 				mParameters = (typeof mParameters == "object") ? mParameters : {} ;
 				var sUrl			= mPath.Table,
@@ -923,7 +911,7 @@
 						success: function(mResponse) {
 							if (("success" in mParameters) && typeof mParameters.success == "function") {
 								if (! mPath.Id) { // if the path = 0 . the response holds multiple entries
-									mResponse = _static.parseCRUDresultList(that, mPath.Table, mResponse);
+									mResponse = _methods.parseCRUDresultList(that, mPath.Table, mResponse);
 								}
 								mParameters.success(mResponse);
 							}
@@ -934,7 +922,7 @@
 					};
 				// Filter
 				if ("filters" in mParameters && $.isArray(mParameters.filters) && mParameters.filters.length ) {
-					sUrl += "?"+_static.parseUI5Filters(aFilters);
+					sUrl += "?"+_methods.parseUI5Filters(aFilters);
 				}
 				// exec api call
 				this._serviceCall(sUrl, mAPIListParams);
@@ -954,7 +942,7 @@
 				var Parent = JSONModel.prototype.setProperty.apply(this, arguments);
 				// check if the updatelist has to be notified
 				if (oContext) {					
-					var mPath = _static.parsePath(oContext.getPath());
+					var mPath = _methods.parsePath(oContext.getPath());
 					// add table to update list if not existing
 					this.createBatchOperation(
 						mPath.Path, 
@@ -1221,17 +1209,17 @@
 				oDeferred.progress(function(status) {
 					switch (status) {
 						case "Start":
-							_static.debugLog("submitCreates started", "submitChanges");
+							_methods.debugLog("submitCreates started", "submitChanges");
 							submitCreates();
 							break;
 
 						case "Create": 
-							_static.debugLog("submitUpdates started", "submitChanges");
+							_methods.debugLog("submitUpdates started", "submitChanges");
 							submitUpdates();
 							break;
 
 						case "Update":
-							_static.debugLog("submitDeletes started", "submitChanges");
+							_methods.debugLog("submitDeletes started", "submitChanges");
 							submitDeletes();
 							break;
 
@@ -1242,7 +1230,7 @@
 					}
 				});
 				$.when(oDeferred).done(function() {
-					_static.debugLog("Batch done");
+					_methods.debugLog("Batch done");
 					if (Object.keys(oErrors).length) {
 						fnError(oErrors);
 					} else {
@@ -1250,7 +1238,7 @@
 					}
 				});
 				// Start the deferred progress
-				_static.debugLog("Batch started");
+				_methods.debugLog("Batch started");
 				oDeferred.notify("Start");
 			};
 
@@ -1261,10 +1249,10 @@
 			 * @param  {functino} fnError   error callback
 			 */
 			CRUDModel.prototype.reload = function(fnSuccess, fnError) {
-				_static.reloadBinds(fnSuccess, fnError);
+				_methods.reloadBinds(fnSuccess, fnError);
 				// this.fireReload({
 				// 	test: "test"
-				// }); //_static.execBind
+				// }); //_methods.execBind
 				// if (typeof fnSuccess !== "function") {
 				// 	fnSuccess = function(){};
 				// }
@@ -1292,7 +1280,7 @@
 				// 		$.each(arguments, function(i, mArg) {
 				// 			if (mArg[1] != "success") { return ; }
 				// 			var sTableName = Object.keys(mArg[0])[0];
-				// 			mNewData[sTableName] = _static.parseCRUDresultList(that, sTableName, mArg[0]);
+				// 			mNewData[sTableName] = _methods.parseCRUDresultList(that, sTableName, mArg[0]);
 				// 		});
 				// 		// remove update data
 				// 		that.clearBatch();
@@ -1318,7 +1306,7 @@
 			 * @return  {XHR object} only when its not in batch mode
 			 */
 			CRUDModel.prototype.remove = function(sPath, mParameters) {
-				var mPath	= _static.parsePath(sPath),
+				var mPath	= _methods.parsePath(sPath),
 					that	= this;
 				mParameters = (typeof mParameters == "object") ? mParameters : {} ;
 				mParameters.error	= (typeof mParameters.error == "function") ? mParameters.error : function(){} ;
@@ -1402,7 +1390,7 @@
 			 * @return	{object}	only if not usning batchmode: jquery xhr object (which has an abort function to abort the current request.)
 			 */
 			CRUDModel.prototype.update = function(sPath, mData, mParameters) {
-				var mPath = _static.parsePath(sPath);
+				var mPath = _methods.parsePath(sPath);
 				mParameters			= (typeof mParameters == "object") ? mParameters : {} ;
 				mParameters.error	= (typeof mParameters.error == "function") ? mParameters.error : function(){} ;
 				mParameters.success = (typeof mParameters.success == "function") ? mParameters.success : function(){} ;
