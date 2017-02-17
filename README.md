@@ -162,7 +162,7 @@ Checks if there exist pending changes in the model created by the setProperty me
 
 
 ###login(sUser, sPassword, mParameters?)
-When the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented, you first need to login. Note: this method fires a request with serviceUrl param _a=login
+When the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented, you first need to login. 
 
 **Parameters:**
 
