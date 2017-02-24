@@ -207,8 +207,9 @@
 				mData = mData || {};
 				if (sTableName in oProxy._oCRUDdata.oColumns) {
 					var oNew = {};
-					$.each(oProxy._oCRUDdata.oColumns[sTableName], function(i, sColumn) {
-						oNew[sColumn] = mData[sColumn] || "";
+					$.each(oProxy._oCRUDdata.oColumns[sTableName], function(i, oColumn) {
+						oNew[oColumn.name] = mData[oColumn.name] || "";
+						oNew[oColumn.name] = _methods.parseCRUDGetColumn(oProxy, sTableName, oColumn.name, oNew[oColumn.name]);
 					});
 					if (Object.keys(oNew).length) {
 						mData = oNew;
@@ -217,6 +218,71 @@
 				return mData;
 			};
 			
+			/**
+			 * Parse data received from api
+			 */
+			_methods.parseCRUDGetData = function(oProxy, sTableName, mData) {
+				if (typeof mData !== "object" || Object.keys(mData).length) {
+					return mData;
+				}
+				mData = $.extend(true, {}, mData);
+				for (var sColumn in mData) {
+					mData[sColumn] = _methods.parseCRUDGetColumn(oProxy, sTableName, sColumn, mData[sColumn]);
+				}
+				return mData;
+			};
+
+			_methods.parseCRUDGetColumn = function(oProxy, sTableName, sColumn, sValue) {
+				if (sValue && sTableName in oProxy._oCRUDdata.oColumns && sColumn in oProxy._oCRUDdata.oColumns[sTableName]) {
+					switch (oProxy._oCRUDdata.oColumns[sTableName][sColumn].type) {
+						case "date":
+						case "datetime":
+						case "timestamp":
+							sValue = new Date(sValue);
+							break;
+						default: // nothing
+							break;
+					}
+				}
+				return sValue;
+			};
+
+			/**
+			 * Parse the data before sending it back to the api
+			 */
+			_methods.parseCRUDPostData = function(oProxy, sTableName, mData) {
+				if (typeof mData !== "object" || Object.keys(mData).length === 0) {
+					return mData;
+				}
+				mData = $.extend(true, {}, mData);
+				for (var sColumn in mData) {
+					if (mData[sColumn] && sTableName in oProxy._oCRUDdata.oColumns && sColumn in oProxy._oCRUDdata.oColumns[sTableName]) {
+						mData[sColumn] = _methods.parseCRUDPostColumn(oProxy, sTableName, sColumn, mData[sColumn]);
+					}					
+				}
+				return mData;
+			};
+			_methods.parseCRUDPostColumn = function(oProxy, sTableName, sColumn, sValue) {
+				if (sValue && sTableName in oProxy._oCRUDdata.oColumns && sColumn in oProxy._oCRUDdata.oColumns[sTableName]) {
+					switch (oProxy._oCRUDdata.oColumns[sTableName][sColumn].type) {
+						case "date":
+							if (sValue instanceof Date) {
+								sValue = isNaN(sValue.getTime()) ? "" : sValue.toISOString().substring(0, 10);
+							}
+							break;
+						case "datetime":
+						case "timestamp":
+							if (sValue instanceof Date) {
+								sValue = isNaN(sValue.getTime()) ? "" : sValue.toISOString().substring(0, 19).replace('T', ' ');
+							}							
+							break;
+						default: // nothing
+							break;
+					}
+				}
+				return sValue;
+			};
+
 
 			/**
 			 * Parses CRUD results List - List results and converts them to json data
@@ -231,10 +297,13 @@
 						mColums = mResponse[sTableName].columns;
 					// try to save columns
 					if (! (sTableName in oProxy._oCRUDdata.oColumns)) {
-						oProxy._oCRUDdata.oColumns[sTableName] = [];
+						oProxy._oCRUDdata.oColumns[sTableName] = {};
 						$.each(mColums, function(index, sColumn){
 							if (sColumn !== oProxy.getPrimaryKey()) {
-								oProxy._oCRUDdata.oColumns[sTableName].push(sColumn);
+								oProxy._oCRUDdata.oColumns[sTableName][sColumn] = {
+									name:sColumn,
+									type: "string"
+								};
 							}
 						});							
 					}
@@ -244,7 +313,7 @@
 						var mNewData = {},
 							mRow     = mRows[i];
 						for (var iR in mRow) {
-							mNewData[mColums[iR]] = mRow[iR];	
+							mNewData[mColums[iR]] = _methods.parseCRUDGetColumn(oProxy, sTableName, mColums[iR], mRow[iR]);	
 						}
 						mData[mNewData[oProxy.getPrimaryKey()]] = mNewData;
 					}
@@ -261,24 +330,55 @@
 			 * @param  {[type]} mListResult [description]
 			 * @return {[type]}           [description]
 			 */
-			_methods.parseMetadataToColumndata = function(oProxy, mListResult) {
+			_methods.parseMetadata = function(oProxy, mListResult) {
 				if (! ("paths" in mListResult)) {
 					return;
 				}
 				var oReturn		= {},
 					sPrimaryKey = oProxy.getPrimaryKey();
 				$.each(mListResult.paths, function(sPath, o){
-					var mPath = _methods.parsePath(sPath);
+					var mPath	= _methods.parsePath(sPath),
+						sTable	= mPath.Table;
 					if (mPath.Id) { return; /*{id}*/ }
-					if (! ("post" in o) || ! ("parameters" in o.post) || typeof o.post.parameters[0] != "object") { return; } 
-					var sTable = _methods.parsePath(sPath).Table;
-					oReturn[sTable] = Object.keys(o.post.parameters[0].schema.properties);
-					var iPrimary = oReturn[sTable].indexOf(sPrimaryKey);
-					if (iPrimary !== -1) {
-						delete oReturn[sTable][iPrimary];
-						oReturn[sTable] = oReturn[sTable].filter(function(){return true;});
-					} else {
-						delete oReturn[sTable]; // cant create by this oProxy
+					oReturn[sTable] = {};
+					if (("post" in o) && ("parameters" in o.post) && typeof o.post.parameters[0] == "object") { 
+						var aKeys = o.post.parameters[0].schema.properties,
+							bPrimaryFound = false;
+						for (var sCol in aKeys) {
+							if (sCol != sPrimaryKey) {
+								oReturn[sTable][sCol] = {'name': sCol, 'type': ''};
+							} else {
+								bPrimaryFound = true;
+							}
+						}
+						if (! bPrimaryFound) { // cant create by this oProxy since there is no primary Id
+							delete oReturn[sTable];
+							return;
+						}
+						// var iPrimary = oReturn[sTable].indexOf(sPrimaryKey);
+						// if (iPrimary !== -1) {
+						// 	delete oReturn[sTable][iPrimary];
+						// 	oReturn[sTable] = oReturn[sTable].filter(function(){return true;});
+						// } else {
+						// 	delete oReturn[sTable]; // cant create by this oProxy
+						// }
+					}
+					if (("get" in o) && 
+						("responses" in o.get) && 
+						("200" in o.get.responses) && 
+						("schema" in o.get.responses["200"]) && 
+						("items" in o.get.responses["200"].schema) && 
+						("properties" in o.get.responses["200"].schema.items) && 
+						typeof o.get.responses["200"].schema.items.properties == "object" && 
+						Object.keys(o.get.responses["200"].schema.items.properties).length
+					) {
+						var oItems = o.get.responses["200"].schema.items.properties;
+						for (var sColName in oItems) {
+							if (! (sColName in oReturn[sTable])) {
+								oReturn[sTable][sColName] = {"name": sColName, "type": ""};
+							}
+							oReturn[sTable][sColName].type = oItems[sColName]["db-type"] || "string";
+						}
 					}
 				});
 				return Object.keys(oReturn).length ? oReturn : null ;
@@ -375,9 +475,19 @@
 				{
 					_oCRUDdata : {
 						oColumns: {
-							/*
-							student: ["id", "name", "age", "gender"],
+							/* example
+							student: ["id", "name", "birtday", "gender"],
 							school: ["id", "name", "address", ....etc]
+							 */
+						},
+						oColumnTypes: {
+							/* example
+							student: {
+								id       : "int",
+								name     : "string",
+								birthday : "date",
+								gender   : "string"
+							}							
 							 */
 						},
 						oBatch: {
@@ -454,7 +564,7 @@
 							fnLoadMetadata	= function() {
 								that._serviceCall("", {
 									success: function(m) {
-										that._oCRUDdata.oColumns = _methods.parseMetadataToColumndata(that, m);
+										that._oCRUDdata.oColumns		= _methods.parseMetadata(that, m);
 										that.fireMetadataLoaded();
 									},
 									error: function(xhr, textStatus, httpStatus) {
@@ -628,7 +738,6 @@
 				var oParent = JSONModel.prototype.bindProperty.apply(this, arguments);
 				sPath = this.resolve(sPath, oContext);
 				if (sPath) {
-					//console.log(sPath);
 					var	mPath	= _methods.parsePath(sPath);
 					if (! mPath.Id) {
 						return oParent;
@@ -704,7 +813,7 @@
 						mPath.Table, 
 						{
 							type    : "POST",
-							data    : oData,
+							data    : _methods.parseCRUDPostData(this, mPath.Table, oData),
 							success : function(iInserId) {
 								oData[that.getPrimaryKey()] = iInserId;
 								mParameters.success(oData);
@@ -742,6 +851,10 @@
 					if (! (aMethods[ikey] in this._oCRUDdata.oBatch)) {
 						this._oCRUDdata.oBatch[aMethods[ikey]] = {};
 					}
+				}
+				// 
+				if (["PUT", "POST"].indexOf(sMethod) !== -1) {
+					oData = _methods.parseCRUDPostData(this, mPath.Table, oData);
 				}
 				// method specific handlers
 				switch (sMethod) {
@@ -938,7 +1051,7 @@
 			 * @param {any}		oValue       value to set the property to
 			 * @param {object}	oContext     the context which will be used to set the property
 			 */
-			CRUDModel.prototype.setProperty = function(sPath, oValue) {
+			CRUDModel.prototype.setProperty = function(sPath, oValue, oContext) {
 				var Parent = JSONModel.prototype.setProperty.apply(this, arguments);
 				// check if the updatelist has to be notified
 				if (oContext) {					
@@ -1249,6 +1362,7 @@
 			 * @param  {functino} fnError   error callback
 			 */
 			CRUDModel.prototype.reload = function(fnSuccess, fnError) {
+				this.setData({});
 				_methods.reloadBinds(fnSuccess, fnError);
 				// this.fireReload({
 				// 	test: "test"
@@ -1419,11 +1533,11 @@
 						mPath.Path,
 						{
 							type    : "PUT",
-							data    : mData ,
+							data    : _methods.parseCRUDPostData(this, mPath.Table, mData),
 							success : function(response) {
 								if (response == "1") {
 									var m = that.getProperty("/"+mPath.Table);
-									if (mPath.Id in m) {
+									if (mPath.Id in m) {										
 										m[mPath.Id] = $.extend(true, m[mPath.Id], mData);
 										JSONModel.prototype.call(that, "/"+mPath.Table, m[mPath.Id]);
 									}
