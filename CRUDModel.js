@@ -345,14 +345,17 @@
 						var aColumns = o.post.parameters[0].schema.properties,
 							bPrimaryFound = false;
 						for (var sCol in aColumns) {
-							if (sCol != sPrimaryKey) {
-								oReturn[sTable][sCol] = {"name": sCol, "type": aColumns["x-dbtype"]};
-							} else {
+							if ("x-primary-key" in aColumns[sCol]) {
 								bPrimaryFound = true;
-							}
+							} else {
+								oReturn[sTable][sCol] = {"name": sCol, "type": ""};
+								oReturn[sTable][sCol].type = aColumns[sCol]["x-dbtype"] || "string";
+							} 
 						}
 						if (! bPrimaryFound) { // cant create by this oProxy since there is no primary Id
+							console.log("WA");
 							delete oReturn[sTable];
+							_methods.debugLog("The primary is unkown for table:"+ sTable, "parseMetadata");
 							return;
 						}
 						// var iPrimary = oReturn[sTable].indexOf(sPrimaryKey);
@@ -474,6 +477,11 @@
 				'nl.barrydam.model.CRUDModel',
 				{
 					_oCRUDdata : {
+						oPrimaryKeys: {
+							/**
+							 *
+							 */
+						},
 						oColumns: {
 							/* example
 							student: ["id", "name", "birtday", "gender"],
