@@ -342,11 +342,11 @@
 					if (mPath.Id) { return; /*{id}*/ }
 					oReturn[sTable] = {};
 					if (("post" in o) && ("parameters" in o.post) && typeof o.post.parameters[0] == "object") { 
-						var aKeys = o.post.parameters[0].schema.properties,
+						var aColumns = o.post.parameters[0].schema.properties,
 							bPrimaryFound = false;
-						for (var sCol in aKeys) {
+						for (var sCol in aColumns) {
 							if (sCol != sPrimaryKey) {
-								oReturn[sTable][sCol] = {'name': sCol, 'type': ''};
+								oReturn[sTable][sCol] = {"name": sCol, "type": aColumns["x-dbtype"]};
 							} else {
 								bPrimaryFound = true;
 							}
@@ -377,7 +377,7 @@
 							if (! (sColName in oReturn[sTable])) {
 								oReturn[sTable][sColName] = {"name": sColName, "type": ""};
 							}
-							oReturn[sTable][sColName].type = oItems[sColName]["db-type"] || "string";
+							oReturn[sTable][sColName].type = oItems[sColName]["x-dbtype"] || "string";
 						}
 					}
 				});
@@ -1504,7 +1504,8 @@
 			 * @return	{object}	only if not usning batchmode: jquery xhr object (which has an abort function to abort the current request.)
 			 */
 			CRUDModel.prototype.update = function(sPath, mData, mParameters) {
-				var mPath = _methods.parsePath(sPath);
+				var mPath	= _methods.parsePath(sPath),
+					that	= this;
 				mParameters			= (typeof mParameters == "object") ? mParameters : {} ;
 				mParameters.error	= (typeof mParameters.error == "function") ? mParameters.error : function(){} ;
 				mParameters.success = (typeof mParameters.success == "function") ? mParameters.success : function(){} ;
@@ -1524,7 +1525,7 @@
 					var m = this.getProperty("/"+mPath.Table);
 					if (mPath.Id in m) {
 						m[mPath.Id] = $.extend(true, m[mPath.Id], mData);
-						JSONModel.prototype.call(this, "/"+mPath.Table, m[mPath.Id]);
+						JSONModel.prototype.setProperty.call(this, "/"+mPath.Table, m[mPath.Id]);
 					}
 					// user callback
 					mParameters.success();
@@ -1539,7 +1540,7 @@
 									var m = that.getProperty("/"+mPath.Table);
 									if (mPath.Id in m) {										
 										m[mPath.Id] = $.extend(true, m[mPath.Id], mData);
-										JSONModel.prototype.call(that, "/"+mPath.Table, m[mPath.Id]);
+										JSONModel.prototype.setProperty.call(that, "/"+mPath.Table, m[mPath.Id]);
 									}
 									// user callback
 									mParameters.success();
