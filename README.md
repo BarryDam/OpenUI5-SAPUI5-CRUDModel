@@ -86,21 +86,21 @@ oServiceExample.attachLogin(function() {
 ## Method detail
 
 [clearBatch](#clearBatch),
-[create](#create),
-[createBatchOperation](#createBatchOperation),
-[createEntry](#createEntry),
+[create](#createspath-odata-mparmeters),
+[createBatchOperation](#createbatchoperationspath-smethod-odata),
+[createEntry](#createentryspath-odata),
 [hasPendingChanges](#hasPendingChanges),
-[getPrimaryKey](#getPrimaryKey),
-[login](#login),
+[getPrimaryKey](#getprimarykeystablename),
+[login](#loginsuser-spassword-mparameters),
 [logout](#logout),
-[read](#read),
-[setProperty](#setProperty),
-[submitChanges](#submitChanges),
-[resetChanges](#resetChanges),
-[reload](#reload),
-[remove](#remove),
-[update](#update)
-[setUseBatch](#setUseBatch)
+[read](#readspath-mparameters),
+[setProperty](#setpropertyspath-ovalue),
+[submitChanges](#submitchangesfnsuccess-fnerror),
+[reload](#reloadfnsuccess-fnerror),
+[remove](#removespath-mparameters),
+[resetChanges](#resetchangesfnsuccess-fnerror),
+[update](#updatespath-odata-mparameters)
+[setUseBatch](#setusebatchbusebatch)
 
 Note: nl.barrydam.CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) all methods of the JSONModel can also be used except the "loadData" method
 
@@ -162,6 +162,18 @@ Checks if there exist pending changes in the model created by the setProperty me
 *{boolean}*	true/false
 
 
+### getPrimaryKey(sTablename?)
+Get the table primary key. If there is no primary key set in the db, it will return the default primary key which is 'id' or an other set by setPrimaryKey
+
+**Parameters:**
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{string}*			| **sTablename** 					| DB Table name
+
+**returns**
+*{string}*	table specific primary key
+
+
 ###login(sUser, sPassword, mParameters?)
 When the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented, you first need to login. 
 
@@ -175,13 +187,6 @@ Type 				| Variable 							| Description
 *{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
 *{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
-
-### getPrimaryKey(sTablename?)
-Get the table primary key. If there is no primary key set in the db, it will return the default primary key which is 'id' or an other set by setPrimaryKey
-
-**returns**
-*{string}*	table specific primary key
-
 
 
 ###logout()
