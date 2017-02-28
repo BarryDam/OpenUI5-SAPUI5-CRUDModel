@@ -1,7 +1,7 @@
 /**
  * nl.barrydam.model.CRUDModel
  * @author	Barry Dam
- * @version 1.2.0
+ * @version 1.2.1
  * add this file to your project folder library/bd/model/
  * In your Component.js add:
  * jQuery.sap.registerModulePath("nl.barrydam", "library/bd/");
@@ -23,7 +23,7 @@
 						// these params can be passed along with the constructor 
 						bindingMode			: "TwoWay", // only TwoWay or OneWay
 						password			: '',		// password when a auto-login is needed 
-						primaryKey			: "id",		// DB row primary key
+						primaryKey			: "id",		// Default db primaryKey
 						serviceUrl			: '',		// URL To api
 						serviceUrlParams	: {},		// additional URL params
 						useBatch			: false,	//when true all POST PUT and DELETE requests will be sent in batch requests (default = false),
@@ -77,6 +77,29 @@
 				oProxy._mSettings[key] = value;
 			};
 
+			/**
+			 * magic _get methods *used in constructor and createSettersAndGetters,
+			 * @param {object} Proxy   refers to the CRUDModel object
+			 * @param {string} key   key
+			 * @param {string} value value
+			 */
+			_methods._get = function(oProxy, key) {
+				var value;
+				switch (key) {
+					case "primaryKey" :
+						// if primary key is set by metadata
+						if (arguments.length >= 3 && arguments[2] in oProxy._oCRUDdata.oPrimaryKeys) {
+							value = oProxy._oCRUDdata.oPrimaryKeys[arguments[2]];
+						}
+					break;
+
+					default:
+						value = oProxy._mSettings[key];
+						break;
+				} 
+				return value;
+			};
+
 
 			/**
 			 * Creates getters and setters for the allowed to change params of the _mSettings object
@@ -94,7 +117,13 @@
 						_methods._set(oProxy, key, value);						
 					};
 					oProxy[sGetter] = function() {
-						return oProxy._mSettings[key];
+						var aNew = [oProxy, key];
+						if (arguments.length) {
+							$.each(arguments, function(i, arg) {
+								aNew.push(arg);
+							});
+						}
+						return _methods._get.apply(this, aNew);						
 					};
 				});
 			};
@@ -299,7 +328,7 @@
 					if (! (sTableName in oProxy._oCRUDdata.oColumns)) {
 						oProxy._oCRUDdata.oColumns[sTableName] = {};
 						$.each(mColums, function(index, sColumn){
-							if (sColumn !== oProxy.getPrimaryKey()) {
+							if (sColumn !== oProxy.getPrimaryKey(sTableName)) {
 								oProxy._oCRUDdata.oColumns[sTableName][sColumn] = {
 									name:sColumn,
 									type: "string"
@@ -315,7 +344,7 @@
 						for (var iR in mRow) {
 							mNewData[mColums[iR]] = _methods.parseCRUDGetColumn(oProxy, sTableName, mColums[iR], mRow[iR]);	
 						}
-						mData[mNewData[oProxy.getPrimaryKey()]] = mNewData;
+						mData[mNewData[oProxy.getPrimaryKey(sTableName)]] = mNewData;
 					}
 					return mData;
 				} else {
@@ -325,17 +354,16 @@
 
 
 			/**
-			 * parse the LIST response to a usable json object
+			 * process the metadata
 			 * @param  {object} oProxy        refers to CRUDModel object
 			 * @param  {[type]} mListResult [description]
-			 * @return {[type]}           [description]
+			 * @return {void}
 			 */
-			_methods.parseMetadata = function(oProxy, mListResult) {
+			_methods.processMetadata = function(oProxy, mListResult) {
 				if (! ("paths" in mListResult)) {
 					return;
 				}
-				var oReturn		= {},
-					sPrimaryKey = oProxy.getPrimaryKey();
+				var oReturn		= {};
 				$.each(mListResult.paths, function(sPath, o){
 					var mPath	= _methods.parsePath(sPath),
 						sTable	= mPath.Table;
@@ -346,6 +374,7 @@
 							bPrimaryFound = false;
 						for (var sCol in aColumns) {
 							if ("x-primary-key" in aColumns[sCol]) {
+								oProxy._oCRUDdata.oPrimaryKeys[sTable] = sCol;
 								bPrimaryFound = true;
 							} else {
 								oReturn[sTable][sCol] = {"name": sCol, "type": ""};
@@ -353,18 +382,10 @@
 							} 
 						}
 						if (! bPrimaryFound) { // cant create by this oProxy since there is no primary Id
-							console.log("WA");
 							delete oReturn[sTable];
 							_methods.debugLog("The primary is unkown for table:"+ sTable, "parseMetadata");
 							return;
 						}
-						// var iPrimary = oReturn[sTable].indexOf(sPrimaryKey);
-						// if (iPrimary !== -1) {
-						// 	delete oReturn[sTable][iPrimary];
-						// 	oReturn[sTable] = oReturn[sTable].filter(function(){return true;});
-						// } else {
-						// 	delete oReturn[sTable]; // cant create by this oProxy
-						// }
 					}
 					if (("get" in o) && 
 						("responses" in o.get) && 
@@ -384,7 +405,7 @@
 						}
 					}
 				});
-				return Object.keys(oReturn).length ? oReturn : null ;
+				oProxy._oCRUDdata.oColumns = Object.keys(oReturn).length ? oReturn : null ;
 			};
 
 
@@ -572,7 +593,7 @@
 							fnLoadMetadata	= function() {
 								that._serviceCall("", {
 									success: function(m) {
-										that._oCRUDdata.oColumns		= _methods.parseMetadata(that, m);
+										_methods.processMetadata(that, m);
 										that.fireMetadataLoaded();
 									},
 									error: function(xhr, textStatus, httpStatus) {
@@ -754,7 +775,7 @@
 						that	= this;
 					if (typeof mModel == "undefined" || ! (mPath.Id in mModel)) {
 						_methods.execBind(this, mPath.Table, null, [
-							new sap.ui.model.Filter(this.getPrimaryKey(), "EQ", mPath.Id)
+							new sap.ui.model.Filter(this.getPrimaryKey(mPath.Table), "EQ", mPath.Id)
 						]);
 					}
 				}				
@@ -811,7 +832,7 @@
 				if (this.getUseBatch()) { // batch mode
 					var any = this.createBatchOperation(sPath, "POST" , oData);
 					if (any) {
-						oData[this.getPrimaryKey()] = any;
+						oData[this.getPrimaryKey(mPath.Table)] = any;
 						mParameters.success(oData);
 					} else {
 						mParameters.error();
@@ -823,7 +844,7 @@
 							type    : "POST",
 							data    : _methods.parseCRUDPostData(this, mPath.Table, oData),
 							success : function(iInserId) {
-								oData[that.getPrimaryKey()] = iInserId;
+								oData[that.getPrimaryKey(mPath.Table)] = iInserId;
 								mParameters.success(oData);
 							},
 							error   : mParameters.error,
@@ -899,7 +920,7 @@
 						}
 						// create a temporary id
 						var Id = Date.now();
-						oData[this.getPrimaryKey()] = Id;
+						oData[this.getPrimaryKey(mPath.Table)] = Id;
 						this._oCRUDdata.oBatch.POST[mPath.Table][Id] = oData;
 						return Id; // return before break
 						break;
@@ -945,7 +966,7 @@
 				// create by metadata
 				oData = _methods.generateCreateByMetadata(this, mPath.Table, oData);
 				var id = this.createBatchOperation(sPath, "POST" , oData);
-				oData[this.getPrimaryKey()] = id;
+				oData[this.getPrimaryKey(mPath.Table)] = id;
 				JSONModel.prototype.setProperty.call(this, "/"+mPath.Table+"/"+id, oData);
 				return id;
 			};
@@ -1102,7 +1123,7 @@
 								var aNewEntries = [],
 									aCreatedIds = [];
 								$.each(that._oCRUDdata.oBatch.POST[sTable], function(createdId, mEntry) {
-									delete mEntry[that.getPrimaryKey()];
+									delete mEntry[that.getPrimaryKey(sTable)];
 									aNewEntries.push(mEntry);
 									aCreatedIds.push(createdId);
 								});
@@ -1128,7 +1149,7 @@
 														var newId = oRes[0][key],
 															oldId = oRes[2]._CreatedIds[key];
 														var m = $.extend(true, {}, that.getProperty("/"+sTable+"/"+oldId), {});
-														m[that.getPrimaryKey()] = newId;
+														m[that.getPrimaryKey(oRes[2]._Table)] = newId;
 														// delete old entry from model
 														delete mModelData[sTable][oldId];
 														// add new entry to modeldata
@@ -1183,7 +1204,7 @@
 								var aUpdates	= [],
 									aIds		= [];
 								$.each(that._oCRUDdata.oBatch.PUT[sTable], function(Id, mEntry) {
-									delete mEntry[that.getPrimaryKey()];
+									delete mEntry[that.getPrimaryKey(sTable)];
 									aUpdates.push(mEntry);
 									aIds.push(Id);
 								});

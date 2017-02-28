@@ -90,6 +90,7 @@ oServiceExample.attachLogin(function() {
 [createBatchOperation](#createBatchOperation),
 [createEntry](#createEntry),
 [hasPendingChanges](#hasPendingChanges),
+[getPrimaryKey](#getPrimaryKey),
 [login](#login),
 [logout](#logout),
 [read](#read),
@@ -174,6 +175,14 @@ Type 				| Variable 							| Description
 *{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
 *{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
+
+### getPrimaryKey(sTablename?)
+Get the table primary key. If there is no primary key set in the db, it will return the default primary key which is 'id' or an other set by setPrimaryKey
+
+**returns**
+*{string}*	table specific primary key
+
+
 
 ###logout()
 Logs the user out when the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented.
