@@ -4,7 +4,7 @@
 
 The CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) and you can work with it as in a similair way to [sap.ui.model.odata.ODataModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.odata.ODataModel.html)
 
-### Mysql Note
+### Databse Note
 On creating a db table, make sure to define a primary key! 
 
 ## Setup in UI5
