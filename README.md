@@ -92,18 +92,19 @@ oServiceExample.attachLogin(function() {
 [create](#createspath-odata-mparmeters),
 [createBatchOperation](#createbatchoperationspath-smethod-odata),
 [createEntry](#createentryspath-odata),
-[hasPendingChanges](#hasPendingChanges),
 [getPrimaryKey](#getprimarykeystablename),
+[hasPendingChanges](#hasPendingChanges),
 [login](#loginsuser-spassword-mparameters),
 [logout](#logout),
 [read](#readspath-mparameters),
-[setProperty](#setpropertyspath-ovalue),
-[submitChanges](#submitchangesfnsuccess-fnerror),
 [reload](#reloadfnsuccess-fnerror),
 [remove](#removespath-mparameters),
 [resetChanges](#resetchangesfnsuccess-fnerror),
-[update](#updatespath-odata-mparameters)
-[setUseBatch](#setusebatchbusebatch)
+[setProperty](#setpropertyspath-ovalue),
+[setUseBatch](#setusebatchbusebatch),
+[submitChanges](#submitchangesfnsuccess-fnerror),
+[update](#updatespath-odata-mparameters).
+
 
 Note: nl.barrydam.CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) all methods of the JSONModel can also be used except the "loadData" method
 
@@ -158,12 +159,6 @@ Type 				| Variable 							| Description
 *{string}*			| **sPath** 						| Name of the path to the collection.
 *{object}*			| **oData** 						| An object that specifies a set of properties or the entry
 
-###hasPendingChanges()
-Checks if there exist pending changes in the model created by the setProperty method.
-
-**returns**
-*{boolean}*	true/false
-
 
 ### getPrimaryKey(sTablename?)
 Get the table primary key. If there is no primary key set in the db, it will return the default primary key which is 'id' or an other set by setPrimaryKey
@@ -175,6 +170,13 @@ Type 				| Variable 							| Description
 
 **returns**
 *{string}*	table specific primary key
+
+
+###hasPendingChanges()
+Checks if there exist pending changes in the model created by the setProperty method.
+
+**returns**
+*{boolean}*	true/false
 
 
 ###login(sUser, sPassword, mParameters?)
@@ -211,7 +213,42 @@ Type 				| Variable 							| Description
 *{array}*			| **mParameters.filters?**			| An array of sap.ui.model.Filter to be included in the request URL
 
 
-###setProperty(sPath, oValue)
+### reload(fnSuccess?, fnError?)
+Reloads the data from the server and keeps the collected changes.
+
+**Parameters:**
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
+*{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
+
+
+### remove(sPath, mParameters?)
+Trigger a DELETE request to the odata service that was specified in the model constructor.
+
+**Parameters:**
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{string}*			| **sPath** 						| 	A string containing the path to the data that should be removed. The path is concatenated to the sServiceUrl which was specified in the model constructor.
+*{map}*				| **mParameters?** 					| Optional parameter map containing any of the following properties:
+*{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
+*{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
+*{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
+
+
+### resetChanges(fnSuccess?, fnError?)
+Resets the collected changes by the setProperty method and reloads the data from the server.
+
+**Parameters:**
+
+Type 				| Variable 							| Description
+--- 				| --- 								| ---
+*{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
+*{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
+
+### setProperty(sPath, oValue)
 Sets a new value for the given property sPropertyName in the model without triggering a server request. This can be done by the [submitChanges](#submitChanges) method.
 Note: Only one entry of one collection can be updated at once. Otherwise a fireRejectChange event is fired.
 
@@ -229,7 +266,14 @@ Type 				| Variable 							| Description
 **Returns** *{boolean}*	true if the value was set correctly and false if errors occurred like the entry was not found or another entry was already updated.
 
 
-###submitChanges(fnSuccess?, fnError?)
+### setUseBatch(bUseBatch?)
+Enable/Disable batch for all requests
+
+**Parameters:**
+*{boolean}* **boolean?** 	whether the requests should be encapsulated in a batch request
+
+
+### submitChanges(fnSuccess?, fnError?)
 Submits the collected changes which were collected by the setProperty method. A MERGE request will be triggered to only update the changed properties. If a URI with a $expand System Query Option was used then the expand entries will be removed from the collected changes. Changes to this entries should be done on the entry itself. So no deep updates are supported.
 
 **Parameters:**
@@ -241,41 +285,6 @@ Type 				| Variable 							| Description
 
 **Returns** *{object}* An object which has an abort function to abort the current request.
 
-
-### reload(fnSuccess?, fnError?)
-Reloads the data from the server and keeps the collected changes.
-
-**Parameters:**
-
-Type 				| Variable 							| Description
---- 				| --- 								| ---
-*{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
-*{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
-
-
-###remove(sPath, mParameters?)
-Trigger a DELETE request to the odata service that was specified in the model constructor.
-
-**Parameters:**
-
-Type 				| Variable 							| Description
---- 				| --- 								| ---
-*{string}*			| **sPath** 						| 	A string containing the path to the data that should be removed. The path is concatenated to the sServiceUrl which was specified in the model constructor.
-*{map}*				| **mParameters?** 					| Optional parameter map containing any of the following properties:
-*{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
-*{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
-*{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
-
-
-###resetChanges(fnSuccess?, fnError?)
-Resets the collected changes by the setProperty method and reloads the data from the server.
-
-**Parameters:**
-
-Type 				| Variable 							| Description
---- 				| --- 								| ---
-*{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
-*{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
 
 ### update(sPath, oData, mParameters?)
 Trigger a PUT request to the odata service that was specified in the model constructor. Please note that deep updates are not supported and may not work. These should be done seperate on the entry directly.
@@ -290,13 +299,6 @@ Type 				| Variable 							| Description
 *{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
 *{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
-
-
-### setUseBatch(bUseBatch?)
-Enable/Disable batch for all requests
-
-**Parameters:**
-*{boolean}* **boolean?** 	whether the requests should be encapsulated in a batch request
 
 
 ## BUY ME A BEER
