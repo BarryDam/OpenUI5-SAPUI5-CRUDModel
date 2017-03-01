@@ -1064,7 +1064,7 @@
 					};
 				// Filter
 				if ("filters" in mParameters && $.isArray(mParameters.filters) && mParameters.filters.length ) {
-					sUrl += "?"+_methods.parseUI5Filters(aFilters);
+					sUrl += "?"+_methods.parseUI5Filters(mParameters.filters);
 				}
 				// exec api call
 				this._serviceCall(sUrl, mAPIListParams);

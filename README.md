@@ -161,7 +161,7 @@ Type 				| Variable 							| Description
 
 
 ### getPrimaryKey(sTablename?)
-Get the table primary key. If there is no primary key set in the db, it will return the default primary key which is 'id' or an other set by setPrimaryKey
+Get the table primary key. If there is no primary key set in the db, it will return the default primary key which is 'id', the default primaryKey can be changed by setPrimaryKey(); or by passing primaryKey in the class constructor
 
 **Parameters:**
 
