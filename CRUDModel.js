@@ -817,6 +817,7 @@
 			 * @return {xhr} 
 			 */
 			CRUDModel.prototype.create = function(sPath, oData, mParameters) {
+				mParameters = (typeof mParameters != "object") ? {} : mParameters;
 				mParameters.success = (typeof mParameters.success == "function") ? mParameters.success : function(){};
 				mParameters.error	= (typeof mParameters.error == "function") ? mParameters.error : function(){};
 				oData				= (typeof oData == "object") ? oData : {};
