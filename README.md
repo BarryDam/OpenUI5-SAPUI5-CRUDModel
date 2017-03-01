@@ -164,6 +164,7 @@ Type 				| Variable 							| Description
 Get the table primary key. If there is no primary key set in the db, it will return the default primary key which is 'id' or an other set by setPrimaryKey
 
 **Parameters:**
+
 Type 				| Variable 							| Description
 --- 				| --- 								| ---
 *{string}*			| **sTablename** 					| DB Table name
