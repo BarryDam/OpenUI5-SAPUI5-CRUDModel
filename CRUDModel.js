@@ -1,7 +1,7 @@
 /**
  * nl.barrydam.model.CRUDModel
  * @author	Barry Dam
- * @version 1.2.4
+ * @version 1.2.5
  * add this file to your project folder library/bd/model/
  * In your Component.js add:
  * jQuery.sap.registerModulePath("nl.barrydam", "library/bd/");
@@ -1310,7 +1310,9 @@
 												// on succes remove the update from batch
 												if (! $.isArray(oRes[0]) && oRes[0] == 1) {
 													// its only one so delete direct
-													delete that._oCRUDdata.oBatch.DELETE[sTable];
+													if (sTable in that._oCRUDdata.oBatch.DELETE) {
+														delete that._oCRUDdata.oBatch.DELETE[sTable];
+													}
 												} else {
 													for (var key in oRes[0]) {
 														if (oRes[0][key] != 1) {
@@ -1322,14 +1324,16 @@
 														}
 														var Id = oRes[2]._deleteIds[key];
 														// remove update from batch
-														delete that._oCRUDdata.oBatch.DELETE[sTable][that._oCRUDdata.oBatch.DELETE[sTable].indexOf(Id)];
+														if ("UPDATE" in that._oCRUDdata.oBatch && sTable in that._oCRUDdata.oBatch.UPDATE && sTable in that._oCRUDdata.oBatch.DELETE) {
+															delete that._oCRUDdata.oBatch.UPDATE[sTable][that._oCRUDdata.oBatch.DELETE[sTable].indexOf(Id)];
+														}
 														// remove table from batch
-														if (Object.keys(that._oCRUDdata.oBatch.DELETE[sTable]).length === 0) {
+														if (sTable in that._oCRUDdata.oBatch.DELETE && Object.keys(that._oCRUDdata.oBatch.DELETE[sTable]).length === 0) {
 															delete that._oCRUDdata.oBatch.DELETE[sTable];
 														}
 													}
 													// reset keys when error occurs
-													if (Object.keys(that._oCRUDdata.oBatch.DELETE[sTable]).length) {
+													if (sTable in that._oCRUDdata.oBatch.DELETE && Object.keys(that._oCRUDdata.oBatch.DELETE[sTable]).length) {
 														that._oCRUDdata.oBatch.DELETE[sTable] = that._oCRUDdata.oBatch.DELETE[sTable].filter(function(){return true;});
 													}
 												}										
@@ -1485,7 +1489,7 @@
 					);
 					// direct delete from model
 					var m = this.getProperty("/"+mPath.Table);
-					if (mPath.Id in m) { // only remove from model if it's available
+					if (m && mPath.Id in m) { // only remove from model if it's available
 						delete m[mPath.Id];
 						JSONModel.prototype.setProperty.call(this, "/"+mPath.Table, m);	
 					}
