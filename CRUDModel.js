@@ -1,7 +1,7 @@
 /**
  * nl.barrydam.model.CRUDModel
  * @author	Barry Dam
- * @version 1.2.2
+ * @version 1.2.3
  * add this file to your project folder library/bd/model/
  * In your Component.js add:
  * jQuery.sap.registerModulePath("nl.barrydam", "library/bd/");
@@ -135,8 +135,22 @@
 			 * @param  {string} Method   Method which calls the log
 			 * @return {object} jQuery.sap.log.Logger	The log instance
 			 */
-			_methods.debugLog = function(sMessage, Method) {
+			_methods.logDebug = function(sMessage, Method) {
 				return jQuery.sap.log.debug(
+					sMessage, 
+					"",
+					"com.barydam.sap.ui.model.json.CRUDModel"+((Method) ? "."+Method : "")
+				);
+			};
+
+			/**
+			 * Creates a new error-level entry in the log with the given message, details and calling component.
+			 * @param  {string} sMessage Message text to display
+			 * @param  {string} Method   Method which calls the log
+			 * @return {object} jQuery.sap.log.Logger	The log instance
+			 */
+			_methods.logError = function(sMessage, Method) {
+				return jQuery.sap.log.error(
 					sMessage, 
 					"",
 					"com.barydam.sap.ui.model.json.CRUDModel"+((Method) ? "."+Method : "")
@@ -383,7 +397,7 @@
 						}
 						if (! bPrimaryFound) { // cant create by this oProxy since there is no primary Id
 							delete oReturn[sTable];
-							_methods.debugLog("The primary is unkown for table:"+ sTable, "parseMetadata");
+							_methods.logDebug("The primary is unkown for table:"+ sTable, "parseMetadata");
 							return;
 						}
 					}
@@ -661,7 +675,7 @@
 						return this.detachEventOnce(sEventId, oData, fnFunction, oListener);
 					};
 					CRUDModel.prototype["fire"+sEventId] = function(mParameters, bAllowPreventDefault, bEnableEventBubbling) {
-						_methods.debugLog(sEventId+" event fired");
+						_methods.logDebug(sEventId+" event fired");
 						return this.fireEvent(sEventId, mParameters, bAllowPreventDefault, bEnableEventBubbling);
 					};
 				};
@@ -1352,17 +1366,17 @@
 				oDeferred.progress(function(status) {
 					switch (status) {
 						case "Start":
-							_methods.debugLog("submitCreates started", "submitChanges");
+							_methods.logDebug("submitCreates started", "submitChanges");
 							submitCreates();
 							break;
 
 						case "Create": 
-							_methods.debugLog("submitUpdates started", "submitChanges");
+							_methods.logDebug("submitUpdates started", "submitChanges");
 							submitUpdates();
 							break;
 
 						case "Update":
-							_methods.debugLog("submitDeletes started", "submitChanges");
+							_methods.logDebug("submitDeletes started", "submitChanges");
 							submitDeletes();
 							break;
 
@@ -1373,7 +1387,7 @@
 					}
 				});
 				$.when(oDeferred).done(function() {
-					_methods.debugLog("Batch done");
+					_methods.logDebug("Batch done");
 					if (Object.keys(oErrors).length) {
 						fnError(oErrors);
 					} else {
@@ -1381,7 +1395,7 @@
 					}
 				});
 				// Start the deferred progress
-				_methods.debugLog("Batch started");
+				_methods.logDebug("Batch started");
 				oDeferred.notify("Start");
 			};
 
@@ -1509,7 +1523,9 @@
 			 * @param  {function} fnSuccess a callback function which is called when the data has been successfully resetted. The handler can have the following parameters: oData and response.
 			 */
 			CRUDModel.prototype.resetChanges = function(fnSuccess, fnError) {
-				if (typeof fnSuccess !== 'function') {
+				if (fnSuccess && typeof fnSuccess !== 'function') {
+					_methods.logError("Param fnSuccess? Only accepts functions, passed param is type: "+typeof fnSuccess, "resetChanges");
+				} else if (typeof fnSuccess !== 'function') {
 					fnSuccess = function(){};
 				}
 				var that = this;
