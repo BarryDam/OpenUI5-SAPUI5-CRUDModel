@@ -729,7 +729,7 @@
 					cache		: false, // NEVER!
 					async		: bAsync,
 					success		: mRequestParams.success,
-					headers		: (_variables.csrf) ? { "X-CSRF-TOKEN" : _variables.csrf } : {},
+					headers		: (_variables.csrf) ? { "X-XSRF-TOKEN" : _variables.csrf } : {},
 					error		: function(xhr, textStatus, httpStatus) {
 						if (httpStatus == "Unauthorized") {
 							if (bAsync) {
