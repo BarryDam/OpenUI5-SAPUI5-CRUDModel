@@ -1,7 +1,7 @@
 /**
  * nl.barrydam.model.CRUDModel
  * @author	Barry Dam
- * @version 1.2.5
+ * @version 1.2.6
  * add this file to your project folder library/bd/model/
  * In your Component.js add:
  * jQuery.sap.registerModulePath("nl.barrydam", "library/bd/");
