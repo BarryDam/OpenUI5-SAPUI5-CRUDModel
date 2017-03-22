@@ -588,7 +588,7 @@
 					return oFilter.sPath+','+oOperators[oFilter.sOperator]+','+oFilter.oValue1+((oFilter.sOperator=='BT')?','+oFilter.oValue2:'');
 				}
 				var aString = [],
-					sSatisfy = "any";
+					sSatisfy = (aFilters.length > 1)? "all": "any"; // default xml view multiple filters are AND conjunctions
 				$.each(aFilters, function(i, oFilter) {
 					if (oFilter instanceof sap.ui.model.Filter) {
 						if (oFilter._bMultiFilter) {
