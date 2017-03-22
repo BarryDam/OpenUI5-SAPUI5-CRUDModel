@@ -357,7 +357,7 @@
 						if (! isNaN(mData[oColumn.name])) {
 							sValue = mData[oColumn.name];
 						} else {
-							sValue = oNew[oColumn.name] || "";
+							sValue = mData[oColumn.name] || "";
 						}
 						oNew[oColumn.name] = _methods.parseCRUDGetColumn(oProxy, sTableName, oColumn.name, sValue);
 					});
