@@ -352,8 +352,14 @@
 				if (sTableName in oProxy._oCRUDdata.oColumns) {
 					var oNew = {};
 					$.each(oProxy._oCRUDdata.oColumns[sTableName], function(i, oColumn) {
-						oNew[oColumn.name] = mData[oColumn.name] || "";
-						oNew[oColumn.name] = _methods.parseCRUDGetColumn(oProxy, sTableName, oColumn.name, oNew[oColumn.name]);
+						var sValue = oNew[oColumn.name];
+						// Number? 0 eq false so check if it is an number
+						if (! isNaN(mData[oColumn.name])) {
+							sValue = mData[oColumn.name];
+						} else {
+							sValue = oNew[oColumn.name] || "";
+						}
+						oNew[oColumn.name] = _methods.parseCRUDGetColumn(oProxy, sTableName, oColumn.name, sValue);
 					});
 					if (Object.keys(oNew).length) {
 						mData = oNew;
@@ -377,7 +383,7 @@
 			};
 
 			_methods.parseCRUDGetColumn = function(oProxy, sTableName, sColumn, sValue) {
-				if (sValue && sTableName in oProxy._oCRUDdata.oColumns && sColumn in oProxy._oCRUDdata.oColumns[sTableName]) {
+				if ( (! isNaN(sValue) || sValue) && sTableName in oProxy._oCRUDdata.oColumns && sColumn in oProxy._oCRUDdata.oColumns[sTableName]) {
 					switch (oProxy._oCRUDdata.oColumns[sTableName][sColumn].type) {
 						case "date":
 						case "datetime":
