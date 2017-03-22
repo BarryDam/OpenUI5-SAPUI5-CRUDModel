@@ -1209,17 +1209,14 @@
 			 * @param {object}	oContext     the context which will be used to set the property
 			 */
 			CRUDModel.prototype.setProperty = function(sPath, oValue, oContext) {
-				var Parent = JSONModel.prototype.setProperty.apply(this, arguments);
-				// check if the updatelist has to be notified
-				if (oContext) {					
-					var mPath = _methods.parsePath(oContext.getPath());
-					// add table to update list if not existing
-					this.createBatchOperation(
-						mPath.Path, 
-						"PUT", 
-						$.extend(true, {}, this.getProperty(mPath.Path))
-					);
-				}
+				var Parent	= JSONModel.prototype.setProperty.apply(this, arguments),
+					mPath	= _methods.parsePath(((oContext) ? oContext.getPath() : sPath ));
+				// add table to update list if not existing
+				this.createBatchOperation(
+					mPath.Path, 
+					"PUT", 
+					$.extend(true, {}, this.getProperty(mPath.Path))
+				);
 				return Parent;
 			};
 
