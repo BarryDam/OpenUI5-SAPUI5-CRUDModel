@@ -841,6 +841,12 @@
 				}
 				var iServiceCallId = Date.now();
 				// execute the request
+				var mHeaders = {
+					"Accept-Language": sap.ui.getCore().getConfiguration().getLanguage()
+				};
+				if (_variables.csrf) {
+					mHeaders["X-XSRF-TOKEN"] = _variables.csrf;
+				}
 				var oAjax = $.ajax({
 					type		: mRequestParams.type || "GET",
 					url			: url,
@@ -849,7 +855,7 @@
 					cache		: false, // NEVER!
 					async		: bAsync,
 					success		: mRequestParams.success,
-					headers		: (_variables.csrf) ? { "X-XSRF-TOKEN" : _variables.csrf } : {},
+					headers		: mHeaders,
 					error		: function(xhr, textStatus, httpStatus) {
 						if (httpStatus == "Unauthorized") {
 							if (bAsync) {
