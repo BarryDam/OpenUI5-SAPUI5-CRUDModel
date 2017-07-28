@@ -1190,7 +1190,7 @@
 				var mPath = _methods.parsePath(sPath);
 				// Check and set api params
 				mParameters = (typeof mParameters == "object") ? mParameters : {} ;
-				var sUrl			= mPath.Table,
+				var sUrl			= mPath.Table+((mPath.Id)? "/"+mPath.Id : ""),
 					that			= this,
 					mAPIListParams	= {
 						success: function(mResponse) {
@@ -1210,7 +1210,7 @@
 					sUrl += "?"+_methods.parseUI5Filters(mParameters.filters);
 				}
 				// exec api call
-				this._serviceCall(sUrl, mAPIListParams);
+				return this._serviceCall(sUrl, mAPIListParams);
 			};
 
 			CRUDModel.prototype.callFunction = function(sPath, mParameters) {
