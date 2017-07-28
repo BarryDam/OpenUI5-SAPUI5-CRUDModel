@@ -1720,7 +1720,7 @@
 									var m = that.getProperty("/"+mPath.Table);
 									if (mPath.Id in m) {										
 										m[mPath.Id] = $.extend(true, m[mPath.Id], mData);
-										JSONModel.prototype.setProperty.call(that, "/"+mPath.Table, m[mPath.Id]);
+										JSONModel.prototype.setProperty.call(that, "/"+mPath.Table+"/"+mPath.Id, m[mPath.Id]);
 									}
 									// user callback
 									mParameters.success();
