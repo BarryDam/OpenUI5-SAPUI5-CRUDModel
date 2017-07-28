@@ -36,7 +36,8 @@
 						"Logout",			// attachLogout attachLogoutOnce fireLogout
 						"MetadataFailed",	// attachMetadataFailed attachMetadataFailedOnce fireMetaDatafailed
 						"MetadataLoaded",	// attachMetadataLoaded attachMetadataLoadedOnce fireMetadataLoaded
-						"Reload"			// attachReload attachReloadOnce fireReload
+						"Reload",			// attachReload attachReloadOnce fireReload
+						"RequestCompleted"	// attachRequestCompleted attachRequestCompletedOnce fireRequestCompleted
 					],
 					mUnsupportedOperations : ["loadData"],	// methods from JSONModel which cannot be used
 					csrf: null // csrf token
@@ -869,6 +870,14 @@
 						if (bAsync) {
 							delete __oServiceCalls[iServiceCallId];					
 						}
+						var mPath	= _methods.parsePath(sUrl);
+						that.fireRequestCompleted({
+							url     : url,
+							path	: mPath,
+							type    : mRequestParams.type || "GET",
+							success : (xhr.status == 200),
+							async   : bAsync
+						});
 					},
 					beforeSend: function(jqXhr) {
 						// add to servicecall array so we can abort them in case of logged out
