@@ -1204,6 +1204,10 @@
 				this._serviceCall(sUrl, mAPIListParams);
 			};
 
+			CRUDModel.prototype.callFunction = function(sPath, mParameters) {
+				this._serviceCall(sPath, mParameters);
+			};
+
 
 			/**
 			 * Sets a new value for the given property sPropertyName in the model without triggering a server request. This can be done by the submitChanges method.
