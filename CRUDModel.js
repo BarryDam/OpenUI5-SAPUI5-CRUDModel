@@ -991,9 +991,18 @@
 						{
 							type    : "POST",
 							data    : _methods.parseCRUDPostData(this, mPath.Table, oData),
-							success : function(iInserId) {
-								oData[that.getPrimaryKey(mPath.Table)] = iInserId;
+							success : function(iInsertId) {
+								oData[that.getPrimaryKey(mPath.Table)] = iInsertId;
 								mParameters.success(oData);
+								that.read(mPath.Table+"/"+iInsertId, {
+									success: function(mResponse) {
+										JSONModel.prototype.setProperty.call(that, "/"+mPath.Table+"/"+iInsertId, mResponse);
+										mParameters.success(mResponse);
+									},
+									error: function() {
+										mParameters.success(oData);
+									}
+								});
 							},
 							error   : mParameters.error,
 							async   : ("async" in mParameters) ? mParameters.async : false // Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
