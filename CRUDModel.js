@@ -286,7 +286,8 @@
 				}
 				if (! bAttachReload) { // refresh after login
 					oProxy.attachLogin(function() { 
-						_methods.execBind(oProxy, sPath, aSorters, aFilters, true);
+						//_methods.execBind(oProxy, sPath, aSorters, aFilters, true);
+						oProxy.reload();
 					});
 					__reloadExecBind.push({
 						oProxy		: oProxy,
@@ -679,7 +680,7 @@
 					 * @type {Object}
 					 */
 					// metadata : {
-					// 	publicMethods : ["submitChanges", "resetChanges", "reload", "remove", "update"]
+					//	publicMethods : ["submitChanges", "resetChanges", "reload", "remove", "update"]
 					// },
 
 					/**
