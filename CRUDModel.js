@@ -1237,13 +1237,13 @@
 				var Parent	= JSONModel.prototype.setProperty.apply(this, arguments),
 					mPath	= _methods.parsePath(((oContext) ? oContext.getPath() : sPath ));
 				// add table to update list if not existing
-				if (this.getUseBatch() && this.getBindingMode() == "TwoWay") {
+				//if (this.getUseBatch() && this.getBindingMode() == "TwoWay") {
 					this.createBatchOperation(
 						mPath.Path, 
 						"PUT", 
 						$.extend(true, {}, this.getProperty(mPath.Path))
 					);
-				}
+				//}
 				return Parent;
 			};
 
