@@ -108,11 +108,11 @@ oServiceExample.attachLogin(function() {
 
 Note: nl.barrydam.CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) all methods of the JSONModel can also be used except the "loadData" method
 
-###clearBatch()
+### clearBatch()
 Removes all operations in the current batch.
 
 
-###create(sPath, oData, mParmeters?)
+### create(sPath, oData, mParmeters?)
 Trigger a POST request to the CRUD service that was specified in the model constructor. Please note that deep creates are not supported and may not work. 
 
 **Parameters:**
@@ -127,7 +127,7 @@ Type 				| Variable 							| Description
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
 
 
-###createBatchOperation(sPath, sMethod, oData?)
+### createBatchOperation(sPath, sMethod, oData?)
 Creates a single batch operation (read or change operation) which can be used in a batch request.
 
 **Parameters:**
@@ -139,7 +139,7 @@ Type 				| Variable 							| Description
 *{object}*			| **oData?** 						| optional data payload which should be created, updated, deleted in a change batch operation.
 
 
-###createEntry(sPath, oData?)
+### createEntry(sPath, oData?)
 Creates a new entry object which is described by the metadata of the entity type of the specified sPath Name. A context object is returned which can be used to bind against the newly created object.
 
 For each created entry a request is created and stored in a request queue. The request queue can be submitted by calling [submitChanges](#submitChanges). To delete a created entry from the request queue call [deleteCreateEntry](#deleteCreateEntry).
@@ -173,14 +173,14 @@ Type 				| Variable 							| Description
 *{string}*	table specific primary key
 
 
-###hasPendingChanges()
+### hasPendingChanges()
 Checks if there exist pending changes in the model created by the setProperty method.
 
 **returns**
 *{boolean}*	true/false
 
 
-###login(sUser, sPassword, mParameters?)
+### login(sUser, sPassword, mParameters?)
 When the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented, you first need to login. 
 
 **Parameters:**
@@ -195,7 +195,7 @@ Type 				| Variable 							| Description
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
 
 
-###logout()
+### logout()
 Logs the user out when the CRUD-api has [php-api-auth](https://github.com/mevdschee/php-api-auth) implemented.
 
 
