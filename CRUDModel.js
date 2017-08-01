@@ -996,6 +996,9 @@
 								mParameters.success(oData);
 								that.read(mPath.Table+"/"+iInsertId, {
 									success: function(mResponse) {
+										if (! that.getProperty("/"+mPath.Table)) {
+											JSONModel.prototype.setProperty.call(that, "/"+mPath.Table, {});
+										}
 										JSONModel.prototype.setProperty.call(that, "/"+mPath.Table+"/"+iInsertId, mResponse);
 										mParameters.success(mResponse);
 									},
