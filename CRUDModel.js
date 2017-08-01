@@ -993,7 +993,6 @@
 							data    : _methods.parseCRUDPostData(this, mPath.Table, oData),
 							success : function(iInsertId) {
 								oData[that.getPrimaryKey(mPath.Table)] = iInsertId;
-								mParameters.success(oData);
 								that.read(mPath.Table+"/"+iInsertId, {
 									success: function(mResponse) {
 										if (! that.getProperty("/"+mPath.Table)) {
