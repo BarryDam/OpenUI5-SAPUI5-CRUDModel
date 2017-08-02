@@ -1810,7 +1810,6 @@
 				this.attachRequestCompleted(function(e){
 					var m = e.getParameters();
 					if (m.path.Table in _mLoadOnce && m.type == "GET" ) {
-						console.log(_mLoadOnce);
 						for (var i in _mLoadOnce[sTable]) {
 							_mLoadOnce[sTable][i](m);
 						}
