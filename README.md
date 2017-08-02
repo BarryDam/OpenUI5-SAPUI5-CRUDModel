@@ -221,8 +221,7 @@ Reloads the data from the server and keeps the collected changes.
 
 Type 				| Variable 							| Description
 --- 				| --- 								| ---
-*{string}*			| **sPath**							| Optional, 
-Wen sPath is set it only reloads the givin path data, else all data will be reloaded
+*{string}*			| **sPath**							| Optional, if set it only reloads the givin path data, else all data will be reloaded
 *{function}*		| **fnSuccess?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
 *{function}*		| **fnError?** 						| 	a callback function which is called when the request failed. 
 
