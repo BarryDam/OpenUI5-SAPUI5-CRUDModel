@@ -247,15 +247,29 @@
 			 * @return {xhr object}          
 			 */
 			var __reloadExecBind = []; // hold the binds and will be reloaded when this.reload is called
-			_methods.reloadBinds = function(fnSuccess, fnError) {
-				fnSuccess	= (typeof fnSuccess == "function") ? fnSuccess : function(){};
-				fnError		= (typeof fnError == "function") ? fnError : function(){};
+			_methods.reloadBinds = function(sPath, fnSuccess, fnError) {
+				var fnSuccessCallback	= fnSuccess,
+					fnErrorCallback		= fnError;
+				if (typeof sPath !== "string") {
+					fnSuccessCallback	= sPath;
+					fnErrorCallback		= fnSuccess;
+				}
+				fnSuccessCallback	= (typeof fnSuccessCallback == "function") ? fnSuccessCallback : function(){};
+				fnErrorCallback		= (typeof fnErrorCallback == "function") ? fnErrorCallback : function(){};
 				if (__reloadExecBind.length === 0) {
-					fnSuccess();
+					fnSuccessCallback();
 				} else {
 					var aPromises = [];
 					$.each(__reloadExecBind, function(i, o) {
-						aPromises.push(_methods.execBind(o.oProxy, o.sPath, o.aSorters, o.aFilters, true));
+						if (typeof sPath === "string") {
+							var mPathRequested	= _methods.parsePath(sPath),
+								mPathCurrent	= _methods.parsePath(o.sPath);
+							if (mPathRequested.Table == mPathCurrent.Table) {
+								aPromises.push(_methods.execBind(o.oProxy, o.sPath, o.aSorters, o.aFilters, true));	
+							}
+						} else {
+							aPromises.push(_methods.execBind(o.oProxy, o.sPath, o.aSorters, o.aFilters, true));
+						}
 					});
 					$.when.apply($, aPromises)
 						.done(function() { 
@@ -266,13 +280,13 @@
 								}
 							});
 							if (aErrors.length) {
-								fnError(aErrors);
+								fnErrorCallback(aErrors);
 							} else {
-								fnSuccess();
+								fnSuccessCallback();
 							}
 						})
 						.fail(function() {
-							fnError.apply(this, arguments);
+							fnErrorCallback.apply(this, arguments);
 						});
 				}
 			};
@@ -553,11 +567,19 @@
 			_methods.parsePath = function(sPath) {
 				// turn /example('1') to /example/1
 				sPath = sPath.replace("('", "/").replace("'')", "");
-				var aPath = sPath.split("/"),
-					oReturn = {
+				// Split params (after ? )
+				var aPath	= sPath.split("?"),
+					sParams = "";
+				if (aPath.length > 1) {
+					sPath	= aPath[0];
+					sParams = aPath[1];
+				}
+				aPath = sPath.split("/");
+				var oReturn = {
 						Table	: "",
 						Id		: "",
-						Path	: ""	
+						Path	: "",
+						Parameters: sParams	
 					};
 				if (aPath.length === 0) {
 					return oReturn;
@@ -1562,12 +1584,26 @@
 
 			/**
 			 * Reloads all data from the API server but keep the batch
+			 * @param spath 
 			 * @param  {function} fnSuccess a callback function which is called when the data has been successfully reloaded.
 			 * @param  {functino} fnError   error callback
 			 */
-			CRUDModel.prototype.reload = function(fnSuccess, fnError) {
-				this.setData({});
-				_methods.reloadBinds(fnSuccess, fnError);
+			CRUDModel.prototype.reload = function(sPath, fnSuccess, fnError) {
+				var fnSuccessCallback	= fnSuccess,
+					fnErrorCallback		= fnError;
+				if (typeof sPath !== "string") {
+					fnSuccessCallback	= sPath;
+					fnErrorCallback		= fnSuccess;					
+					this.setData({});
+					_methods.reloadBinds(fnSuccess, fnError);					
+					this.fireReload();
+				} else {
+					var mPath = _methods.parsePath(sPath);
+					this.setProperty("/"+mPath.Table, {});
+					_methods.reloadBinds("/"+mPath.Table, fnSuccess, fnError);
+					this.fireReload({path : "/"+mPath.Table});
+				}
+				
 				// this.fireReload({
 				// 	test: "test"
 				// }); //_methods.execBind
