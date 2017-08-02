@@ -1601,7 +1601,7 @@
 					var mPath = _methods.parsePath(sPath);
 					this.setProperty("/"+mPath.Table, {});
 					_methods.reloadBinds("/"+mPath.Table, fnSuccess, fnError);
-					this.fireReload({path : "/"+mPath.Table});
+					this.fireReload({path : mPath });
 				}
 				
 				// this.fireReload({
@@ -1797,6 +1797,44 @@
 					);
 				}	
 				
+			};
+
+			var _mLoadOnce = {};
+			CRUDModel.prototype.onLoadedOnce = function(sTable, fnCallback) {
+				if (! (sTable in _mLoadOnce)) {
+					_mLoadOnce[sTable] = [];
+				}
+				if (typeof fnCallback === "function") {
+					_mLoadOnce[sTable].push(fnCallback);
+				}
+				this.attachRequestCompleted(function(e){
+					var m = e.getParameters();
+					if (m.path.Table in _mLoadOnce && m.type == "GET" ) {
+						console.log(_mLoadOnce);
+						for (var i in _mLoadOnce[sTable]) {
+							_mLoadOnce[sTable][i](m);
+						}
+						delete(_mLoadOnce[sTable]);
+					}
+				});
+			};
+
+			CRUDModel.prototype.onLoaded = function(sTable, fnCallback) {
+				this.attachRequestCompleted(function(e){
+					var m = e.getParameters();
+					if (m.path.Table == sTable && m.type == "GET" && typeof fnCallback === "function") {
+						fnCallback(m);
+					}
+				});
+			};
+
+			CRUDModel.prototype.onReload =	function(sTable, fnCallback) {
+				this.attachReload(function(e) {
+					var mParams = e.getParameters();
+					if (mParams.path.Table === sTable && typeof fnCallback === "function") {
+						fnCallback(mParams);
+					}				
+				});
 			};
 
 			return CRUDModel;
