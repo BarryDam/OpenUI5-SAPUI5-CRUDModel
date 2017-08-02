@@ -295,9 +295,10 @@
 						aSorters	: aSorters,
 						aFilters	: aFilters
 					});
+					// commented this out cuz it resulted in 2 reloads
 					// oProxy.attachReload(function() { 
-					// 	console.log(arguments);
-					// 	_methods.execBind(oProxy, sPath, aSorters, aFilters, true);
+					//	console.log(arguments);
+					//	_methods.execBind(oProxy, sPath, aSorters, aFilters, true);
 					// });
 				}				
 				return oProxy._serviceCall(
@@ -493,21 +494,17 @@
 					if (mPath.Id) { return; /*{id}*/ }
 					oReturn[sTable] = {};
 					if (("post" in o) && ("parameters" in o.post) && typeof o.post.parameters[0] == "object") { 
-						var aColumns = o.post.parameters[0].schema.properties,
-							bPrimaryFound = false;
+						var aColumns = o.post.parameters[0].schema.properties;
 						for (var sCol in aColumns) {
-							if ("x-primary-key" in aColumns[sCol]) {
+							// check if columnn is primary key
+							if ("x-primary-key" in aColumns[sCol]) { 
 								oProxy._oCRUDdata.oPrimaryKeys[sTable] = sCol;
-								bPrimaryFound = true;
 							} else {
-								oReturn[sTable][sCol] = {"name": sCol, "type": ""};
-								oReturn[sTable][sCol].type = aColumns[sCol]["x-dbtype"] || "string";
+								oReturn[sTable][sCol] = {
+									name: sCol, 
+									type: aColumns[sCol]["x-dbtype"] || "string"
+								};
 							} 
-						}
-						if (! bPrimaryFound) { // cant create by this oProxy since there is no primary Id
-							delete oReturn[sTable];
-							_methods.logDebug("The primary is unkown for table:"+ sTable, "parseMetadata");
-							return;
 						}
 					}
 					if (("get" in o) && 
@@ -525,7 +522,17 @@
 								oReturn[sTable][sColName] = {"name": sColName, "type": ""};
 							}
 							oReturn[sTable][sColName].type = oItems[sColName]["x-dbtype"] || "string";
+							// try to find the primary key if it's not allready found in the post
+							if (! (sTable in oProxy._oCRUDdata.oPrimaryKeys) && "x-primary-key" in oItems[sColName]) {
+								oProxy._oCRUDdata.oPrimaryKeys[sTable] = sColName;
+							}
 						}
+					}
+					// could not find primary key
+					if (! (sTable in oProxy._oCRUDdata.oPrimaryKeys)) { // cant create by this oProxy since there is no primary Id
+						delete oReturn[sTable];
+						_methods.logDebug("The primary is unkown for table:"+ sTable, "parseMetadata");
+						return;
 					}
 				});
 				oProxy._oCRUDdata.oColumns = Object.keys(oReturn).length ? oReturn : null ;
