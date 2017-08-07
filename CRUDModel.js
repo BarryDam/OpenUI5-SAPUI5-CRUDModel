@@ -1821,7 +1821,7 @@
 			CRUDModel.prototype.onLoaded = function(sTable, fnCallback) {
 				this.attachRequestCompleted(function(e){
 					var m = e.getParameters();
-					if (m.path.Table == sTable && m.type == "GET" && typeof fnCallback === "function") {
+					if ("path" in m && "Table" in m.path && m.path.Table == sTable && m.type == "GET" && typeof fnCallback === "function") {
 						fnCallback(m);
 					}
 				});
@@ -1830,10 +1830,14 @@
 			CRUDModel.prototype.onReload =	function(sTable, fnCallback) {
 				this.attachReload(function(e) {
 					var mParams = e.getParameters();
-					if (mParams.path.Table === sTable && typeof fnCallback === "function") {
+					if ("path" in mParams && "Table" in mParams.path && mParams.path.Table === sTable && typeof fnCallback === "function") {
 						fnCallback(mParams);
 					}				
 				});
+			};
+
+			CRUDModel.prototype.getCSRFToken = function() {
+				return _variables.csrf;
 			};
 
 			return CRUDModel;
