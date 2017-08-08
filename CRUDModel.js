@@ -1801,6 +1801,12 @@
 
 			var _mLoadOnce = {};
 			CRUDModel.prototype.onLoadedOnce = function(sTable, fnCallback) {
+				// fire directely if allready loaded
+				if (this.getProperty("/"+sTable) && typeof fnCallback == "function") {
+					fnCallback(m);
+					return;
+				}
+				// else add
 				if (! (sTable in _mLoadOnce)) {
 					_mLoadOnce[sTable] = [];
 				}
@@ -1819,6 +1825,11 @@
 			};
 
 			CRUDModel.prototype.onLoaded = function(sTable, fnCallback) {
+				// fire directely if allready loaded
+				if (this.getProperty("/"+sTable) && typeof fnCallback == "function") {
+					fnCallback(m);
+				}
+				// else on request completed
 				this.attachRequestCompleted(function(e){
 					var m = e.getParameters();
 					if ("path" in m && "Table" in m.path && m.path.Table == sTable && m.type == "GET" && typeof fnCallback === "function") {
