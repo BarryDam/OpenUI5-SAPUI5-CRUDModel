@@ -1702,8 +1702,10 @@
 									mParameters.error();
 								} else {
 									var m = that.getProperty("/"+mPath.Table);
-									delete m[mPath.Id];
-									JSONModel.prototype.setProperty.call(that, "/"+mPath.Table, m);
+									if (m) {
+										delete m[mPath.Id];
+										JSONModel.prototype.setProperty.call(that, "/"+mPath.Table, m);
+									}
 									// refresh binding data
 									that.refresh(true);
 									// callback
