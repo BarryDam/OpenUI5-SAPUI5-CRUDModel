@@ -566,7 +566,11 @@
 			 */
 			_methods.parsePath = function(sPath) {
 				// turn /example('1') to /example/1
-				sPath = sPath.replace("('", "/").replace("'')", "");
+				sPath = sPath.replace("('", "/").replace("')", "");				
+				// turn /example("1") to /example/1
+				sPath = sPath.replace("(\"", "/").replace("\")", "");
+				// turn /example(1) to /example/1
+				sPath = sPath.replace("(", "/").replace(")", "");
 				// Split params (after ? )
 				var aPath	= sPath.split("?"),
 					sParams = "";
