@@ -1265,6 +1265,13 @@
 			};
 
 			CRUDModel.prototype.callFunction = function(sPath, mParameters) {
+				mParameters = (typeof mParameters === "object") ? mParameters : {} ;
+				if ("method" in mParameters) {
+					mParameters.type = mParameters.method;
+				} 
+				if ("urlParameters" in mParameters && typeof mParameters.urlParameters === "object") {
+					mParameters.data = mParameters.urlParameters;
+				}
 				return this._serviceCall(sPath, mParameters);
 			};
 
