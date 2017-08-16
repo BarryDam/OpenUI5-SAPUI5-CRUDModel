@@ -822,18 +822,15 @@
 						/* sometimes the login and logout events are attached after the fire */
 						if (sEventId === "Login" && this._loggedIn) {
 							this.fireLogin();
-						} else if (sEventId === "Logout" && ! this._loggedIn) {
-							this.fireLogout();
-						}
+						} 
 						return oEvent;
 					};
 					CRUDModel.prototype["attach"+sEventId+"Once"] = function(oData, fnFunction, oListener) {
+						var oEvent = this.attachEventOnce(sEventId, oData, fnFunction, oListener);
 						if (sEventId === "Login" && this._loggedIn) {
 							this.fireLogin();
-						} else if (sEventId === "Logout" && ! this._loggedIn) {
-							this.fireLogout();
 						}
-						return this.attachEventOnce(sEventId, oData, fnFunction, oListener);
+						return oEvent;
 					};
 					CRUDModel.prototype["detach"+sEventId] = function(oData, fnFunction, oListener) {
 						return this.detachEvent(sEventId, oData, fnFunction, oListener);
