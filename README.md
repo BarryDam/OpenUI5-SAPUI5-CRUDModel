@@ -88,6 +88,7 @@ oServiceExample.attachLogin(function() {
 
 ## Method detail
 
+[callFunction](#callFunction),
 [clearBatch](#clearBatch),
 [create](#createspath-odata-mparmeters),
 [createBatchOperation](#createbatchoperationspath-smethod-odata),
@@ -107,6 +108,9 @@ oServiceExample.attachLogin(function() {
 
 
 Note: nl.barrydam.CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) all methods of the JSONModel can also be used except the "loadData" method
+
+### callFunction()
+Trigger a request to the function import OData service that was specified in the model constructor.
 
 ### clearBatch()
 Removes all operations in the current batch.

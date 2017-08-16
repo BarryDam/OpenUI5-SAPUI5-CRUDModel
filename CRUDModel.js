@@ -1265,7 +1265,7 @@
 			};
 
 			CRUDModel.prototype.callFunction = function(sPath, mParameters) {
-				this._serviceCall(sPath, mParameters);
+				return this._serviceCall(sPath, mParameters);
 			};
 
 
