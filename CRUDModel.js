@@ -653,7 +653,7 @@
 			var CRUDModel = JSONModel.extend(
 				'nl.barrydam.model.CRUDModel',
 				{	
-					_loggedIn:false,
+					_loggedIn:null,
 					_oCRUDdata : {
 						oPrimaryKeys: {
 							/**
@@ -822,14 +822,18 @@
 						/* sometimes the login and logout events are attached after the fire */
 						if (sEventId === "Login" && this._loggedIn) {
 							this.fireLogin();
-						} 
+						} else if (sEventId === "Logout" && this._loggedIn === false) { // important to check on false (null is set by default)
+							this.fireLogout();
+						}
 						return oEvent;
 					};
 					CRUDModel.prototype["attach"+sEventId+"Once"] = function(oData, fnFunction, oListener) {
 						var oEvent = this.attachEventOnce(sEventId, oData, fnFunction, oListener);
 						if (sEventId === "Login" && this._loggedIn) {
 							this.fireLogin();
-						}
+						} else if (sEventId === "Logout" && this._loggedIn === false) { // important to check on false (null is set by default)
+							this.fireLogout();
+						} 
 						return oEvent;
 					};
 					CRUDModel.prototype["detach"+sEventId] = function(oData, fnFunction, oListener) {
@@ -912,7 +916,7 @@
 							});
 							// fire logout
 							// IMPORTANT: allways put this AFTER above sync abortions
-							this._loggedIn = false;
+							that._loggedIn = false;
 							that.fireLogout();							
 						} 
 						mRequestParams.error.apply(this, arguments);
