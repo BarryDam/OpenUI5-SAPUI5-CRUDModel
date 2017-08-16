@@ -652,7 +652,8 @@
 			 */
 			var CRUDModel = JSONModel.extend(
 				'nl.barrydam.model.CRUDModel',
-				{
+				{	
+					_loggedIn:false,
 					_oCRUDdata : {
 						oPrimaryKeys: {
 							/**
@@ -817,9 +818,21 @@
 				var fnCreateEvents = function(sEventId) {
 					sEventId = sEventId.charAt(0).toUpperCase() + sEventId.slice(1);
 					CRUDModel.prototype["attach"+sEventId] = function(oData, fnFunction, oListener) {
-						return this.attachEvent(sEventId, oData, fnFunction, oListener);
+						var oEvent = this.attachEvent(sEventId, oData, fnFunction, oListener);
+						/* sometimes the login and logout events are attached after the fire */
+						if (sEventId === "Login" && this._loggedIn) {
+							this.fireLogin();
+						} else if (sEventId === "Logout" && ! this._loggedIn) {
+							this.fireLogout();
+						}
+						return oEvent;
 					};
 					CRUDModel.prototype["attach"+sEventId+"Once"] = function(oData, fnFunction, oListener) {
+						if (sEventId === "Login" && this._loggedIn) {
+							this.fireLogin();
+						} else if (sEventId === "Logout" && ! this._loggedIn) {
+							this.fireLogout();
+						}
 						return this.attachEventOnce(sEventId, oData, fnFunction, oListener);
 					};
 					CRUDModel.prototype["detach"+sEventId] = function(oData, fnFunction, oListener) {
@@ -884,7 +897,8 @@
 				var oAjax = $.ajax({
 					type		: mRequestParams.type || "GET",
 					url			: url,
-					data		: ("data" in mRequestParams) ? JSON.stringify(mRequestParams.data) : {},
+					//data		: ("data" in mRequestParams) ? JSON.stringify(mRequestParams.data) : {},
+					data		: ("data" in mRequestParams) ? mRequestParams.data : {},
 					dataType	: "json",
 					cache		: false, // NEVER!
 					async		: bAsync,
@@ -901,6 +915,7 @@
 							});
 							// fire logout
 							// IMPORTANT: allways put this AFTER above sync abortions
+							this._loggedIn = false;
 							that.fireLogout();							
 						} 
 						mRequestParams.error.apply(this, arguments);
@@ -1223,6 +1238,7 @@
 				// Logout is done by calling a post request to the api without the csrf token
 				_variables.csrf = null;
 				this._serviceCall("", { type : "POST" });
+				this._loggedIn = false;
 				this.fireLogout();
 			};
 
