@@ -93,7 +93,7 @@ oServiceExample.attachLogin(function() {
 [create](#createspath-odata-mparameters),
 [createBatchOperation](#createbatchoperationspath-smethod-odata),
 [createEntry](#createentryspath-odata),
-[exporToCSV](#exporttocsvspath-mparamenters),
+[exportToCSV](#exporttocsvspath-mparameters),
 [getPrimaryKey](#getprimarykeystablename),
 [hasPendingChanges](#hasPendingChanges),
 [login](#loginsuser-spassword-mparameters),
@@ -164,7 +164,7 @@ Type 				| Variable 							| Description
 *{string}*			| **sPath** 						| Name of the path to the collection.
 *{object}*			| **oData** 						| An object that specifies a set of properties or the entry
 
-### exportToCSV(sPath, oData, mparameters?)
+### exportToCSV(sPath, mparameters?)
 Export the data to a CSV file.
 
 **Parameters:**
@@ -184,6 +184,7 @@ Type 				| Variable 							| Description
 *{boolean}*			| **mParameters.refreshData?** 		| If set to True, a fresh set of data will be requested. If set to false, the current model data would be used (if there is no data available a new request will be fired towards the api), default false
 *{string}*			| **mParameters.separatorChar?** 	| default: ,
 
+Example:
 ```js
 /*
  This example below will result in a my-custom-filename.csv download
