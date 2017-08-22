@@ -1614,6 +1614,7 @@
 			 * Reloads all data from the API server but keep the batch
 			 * @param spath 
 			 * @param mParameters { success and error }
+			 * success returns the model data if the sPath was set
 			 */
 			CRUDModel.prototype.reload = function(sPath, mParameters) {
 				if (typeof sPath !== "string") {
@@ -1629,7 +1630,11 @@
 				} else {
 					var mPath = _methods.parsePath(sPath);
 					this.setProperty("/"+mPath.Table, {});
-					_methods.reloadBinds("/"+mPath.Table, fnSuccessCallback, fnErrorCallback);
+					var that		= this,
+						fnSuccess	= function() {
+							fnSuccessCallback.call(this, that.getProperty("/"+mPath.Table));
+						};
+					_methods.reloadBinds("/"+mPath.Table, fnSuccess, fnErrorCallback);
 					this.fireReload({path : mPath });
 				}
 			};

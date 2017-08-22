@@ -227,7 +227,7 @@ Type 				| Variable 							| Description
 --- 				| --- 								| ---
 *{string}*			| **sPath**							| Optional, if set it only reloads the givin path data, else all data will be reloaded
 *{map}*				| **mParameters?** 					| Optional parameter map containing any of the following properties:
-*{function}*		| **mParameters.success?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData and response.
+*{function}*		| **mParameters.success?** 					| 	a callback function which is called when the data has been successfully updated. The handler can have the following parameters: oData (only passed if the sPath is passed)
 *{function}*		| **mParameters.error?** 						| 	a callback function which is called when the request failed. 
 
 
