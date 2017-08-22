@@ -1616,19 +1616,20 @@
 			 * @param mParameters { success and error }
 			 */
 			CRUDModel.prototype.reload = function(sPath, mParameters) {
+				if (typeof sPath !== "string") {
+					mParameters = sPath;
+				}
 				mParameters = (typeof mParameters === "object") ? mParameters : {} ;
 				var fnSuccessCallback	= ("success" in mParameters)? mParameters.success : function() {} ,
 					fnErrorCallback		= ("error" in mParameters)? mParameters.error : function() {} ;
 				if (typeof sPath !== "string") {
-					fnSuccessCallback	= sPath;
-					fnErrorCallback		= fnSuccess;					
 					this.setData({});
-					_methods.reloadBinds(fnSuccess, fnError);					
+					_methods.reloadBinds(fnSuccessCallback, fnErrorCallback);					
 					this.fireReload();
 				} else {
 					var mPath = _methods.parsePath(sPath);
 					this.setProperty("/"+mPath.Table, {});
-					_methods.reloadBinds("/"+mPath.Table, fnSuccess, fnError);
+					_methods.reloadBinds("/"+mPath.Table, fnSuccessCallback, fnErrorCallback);
 					this.fireReload({path : mPath });
 				}
 			};
