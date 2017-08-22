@@ -1613,12 +1613,12 @@
 			/**
 			 * Reloads all data from the API server but keep the batch
 			 * @param spath 
-			 * @param  {function} fnSuccess a callback function which is called when the data has been successfully reloaded.
-			 * @param  {functino} fnError   error callback
+			 * @param mParameters { success and error }
 			 */
-			CRUDModel.prototype.reload = function(sPath, fnSuccess, fnError) {
-				var fnSuccessCallback	= fnSuccess,
-					fnErrorCallback		= fnError;
+			CRUDModel.prototype.reload = function(sPath, mParameters) {
+				mParameters = (typeof mParameters === "object") ? mParameters : {} ;
+				var fnSuccessCallback	= ("success" in mParameters)? mParameters.success : function() {} ,
+					fnErrorCallback		= ("error" in mParameters)? mParameters.error : function() {} ;
 				if (typeof sPath !== "string") {
 					fnSuccessCallback	= sPath;
 					fnErrorCallback		= fnSuccess;					
@@ -1631,50 +1631,6 @@
 					_methods.reloadBinds("/"+mPath.Table, fnSuccess, fnError);
 					this.fireReload({path : mPath });
 				}
-				
-				// this.fireReload({
-				// 	test: "test"
-				// }); //_methods.execBind
-				// if (typeof fnSuccess !== "function") {
-				// 	fnSuccess = function(){};
-				// }
-				// if (typeof fnError !== "function") {
-				// 	fnError = function(){};
-				// }
-				// var mOldData	= this.getData("/"),
-				// 	aPromises	= [];
-				// if (! mOldData) {
-				// 	return fnSuccess();
-				// }
-				// // Create and exec api calls
-				// var sPrimaryKey = this.getPrimaryKey(),
-				// 	that = this;
-				// $.each(mOldData, function(sTableName, mTableEntries) {
-				// 	var aKeys = Object.keys(mTableEntries);
-				// 	if (aKeys.length === 0) { return; }
-				// 	var sUrl = sTableName+"?filter="+sPrimaryKey+",in,"+aKeys.join(",");
-				// 	aPromises.push(that._serviceCall(sUrl));
-				// });
-				// // Exec when all api calls are done
-				// $.when.apply($, aPromises)
-				// 	.done(function() {
-				// 		var mNewData = {};
-				// 		$.each(arguments, function(i, mArg) {
-				// 			if (mArg[1] != "success") { return ; }
-				// 			var sTableName = Object.keys(mArg[0])[0];
-				// 			mNewData[sTableName] = _methods.parseCRUDresultList(that, sTableName, mArg[0]);
-				// 		});
-				// 		// remove update data
-				// 		that.clearBatch();
-				// 		// set the new data
-				// 		that.setData(mNewData);
-				// 		// refresh binding data
-				// 		that.refresh(true);
-				// 		// user callback
-				// 		fnSuccess();
-				// 	}).fail(function() {
-				// 		fnError();
-				// 	});
 			};
 
 
