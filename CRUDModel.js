@@ -11,9 +11,13 @@
 	jQuery.sap.declare('nl.barrydam.model.CRUDModel');
 	jQuery.sap.require("jquery.sap.storage");
 	sap.ui.define(
-		'nl/barrydam/model/CRUDModel',
-		['sap/ui/model/json/JSONModel'],
-		function(JSONModel) {
+		"nl/barrydam/model/CRUDModel",
+		[
+			"sap/ui/model/json/JSONModel",
+			"sap/ui/core/util/Export",
+			"sap/ui/core/util/ExportTypeCSV",
+		],
+		function(JSONModel, Export, ExportTypeCSV) {
 			"use strict";
 
 			
@@ -405,7 +409,7 @@
 						case "date":
 						case "datetime":
 						case "timestamp":
-							sValue = new Date(sValue);
+							sValue = (! sValue || sValue == "0000-00-00") ? null : new Date(sValue) ;
 							break;
 						default: // nothing
 							break;
@@ -1180,6 +1184,89 @@
 				return id;
 			};
 
+			/**
+			 * Export to CSV
+			 * @param  string 	sPath       path 
+			 * @param  map 		mParameters [description]
+			 * @return
+			 */
+			CRUDModel.prototype.exportToCSV = function(sPath, mParameters) {
+				var mPath = _methods.parsePath(sPath);
+				mParameters = (typeof mParameters === "object") ? mParameters : {} ;
+				mParameters.error				= ("error" in mParameters && typeof mParameters.error === "function") ? mParameters.error : function() {} ; 
+				mParameters.excludeColumns		= ("excludeColumns" in mParameters && $.isArray(mParameters.excludeColumns)) ? mParameters.excludeColumns : "[]" ; 
+				mParameters.filename			= ("filename" in mParameters) ? mParameters.filename : mPath.Table+"-"+Date.now() ;
+				mParameters.formatValue			= ("formatValue" in mParameters && typeof mParameters.formatValue === "function") ? mParameters.formatValue : function(sColumn, sValue) { return sValue; } ; 
+				mParameters.formatColumnName	= ("formatColumnName" in mParameters && typeof mParameters.formatColumnName === "function") ? mParameters.formatColumnName : function(sName) { return sName; } ; 
+				mParameters.includeColumns		= ("includeColumns" in mParameters) ? mParameters.includeColumns : null ; // , = ui5 default
+				mParameters.refreshData			= ("refreshData" in mParameters) ? mParameters.refreshData : false ; // , = ui5 default
+				mParameters.separatorChar		= ("separatorChar" in mParameters) ? mParameters.separatorChar : "," ; // , = ui5 default
+				mParameters.success				= ("success" in mParameters && typeof mParameters.success === "function") ? mParameters.success : function() {} ; 
+				// check if path has set
+				if (! mPath.Table) { 
+					return mParameters.error("\"sPath\" is undefined", "error");
+				}
+				if (mParameters.refreshData	|| ! this.getProperty("/"+mPath.Table)) {
+					this.read(mPath.Table, {
+						success: function(mData) {
+							_methods.exportToCSV(mData, mParameters);
+						},
+						error: function() {
+							return mParameters.error("\"sPath\" is undefined", "error");
+						}
+					});
+				} else {
+					_methods.exportToCSV(this.getProperty("/"+mPath.Table), mParameters);
+				}
+			};
+			_methods.exportToCSV = function(m, mParameters) {
+				if (Object.keys(m).length === 0) {
+					mParameters.error("no data", "no_data");
+					return;
+				}
+				var aColumns	= [],
+					aData		= [];
+				for (var i in m) {
+					// create the columns
+					if (aColumns.length === 0) {
+						aColumns = Object.keys(m[i]);
+						if (mParameters.excludeColumns.length !== 0) {
+							aColumns = aColumns.filter(function(sWord) { return (mParameters.excludeColumns.indexOf(sWord) === -1); });
+						}
+						if (mParameters.includeColumns.length !== 0) {
+							aColumns = aColumns.filter(function(sWord) { return (mParameters.includeColumns.indexOf(sWord) !== -1); });
+						}
+						aColumns = aColumns.map(function(sColumn) { 
+							return {
+								name		: mParameters.formatColumnName(sColumn),
+								template	: { content: "{"+sColumn+"}" }
+							};
+						});
+					}
+					// format the value
+					for (var sColumn in m[i]) {
+						m[i][sColumn] = mParameters.formatValue(sColumn, m[i][sColumn]);
+					}
+					// add to csv data
+					aData.push(m[i]);
+				}
+				var oExport = new Export({
+					exportType    : new ExportTypeCSV({
+						separatorChar : mParameters.separatorChar
+					}),
+					models        : new JSONModel(aData),
+					rows          : { path : "/" },
+					columns       : aColumns
+				});
+				oExport.saveFile(mParameters.filename)
+					.catch(function() {
+						mParameters.error(error, "compile_error");
+					}).then(function(error){
+						mParameters.success();						
+						oExport.destroy();
+					});
+			};
+
 
 			/**
 			 * Checks if there exist pending changes in the model created by the setProperty method.
@@ -1842,6 +1929,8 @@
 			CRUDModel.prototype.getCSRFToken = function() {
 				return _variables.csrf;
 			};
+
+
 
 			return CRUDModel;
 			
