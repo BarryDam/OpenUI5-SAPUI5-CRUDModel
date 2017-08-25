@@ -1837,6 +1837,12 @@
 					}
 					return null;
 				}
+				// check if primary key is set .. else add it
+				mData = _methods.parseCRUDPostData(this, mPath.Table, mData);
+				var sPrimaryKey = this.getPrimaryKey(mPath.Table);
+				if (! (sPrimaryKey in mData)) {
+					mData[sPrimaryKey] = mPath.Id;
+				}
 				if (this.getUseBatch())	{
 					this.createBatchOperation(
 						mPath.Path,
@@ -1853,10 +1859,10 @@
 					mParameters.success();
 				} else {
 					return this._serviceCall(
-						mPath.Path,
+						mPath.Table+"/"+mPath.Id,
 						{
 							type    : "PUT",
-							data    : _methods.parseCRUDPostData(this, mPath.Table, mData),
+							data    : mData,
 							success : function(response) {
 								if (response == "1") {
 									var m = that.getProperty("/"+mPath.Table);
