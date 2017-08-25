@@ -1767,7 +1767,7 @@
 				} else {
 					// direct process
 					return this._serviceCall(
-						mPath.Path,
+						mPath.Table+"/"+mPath.Id,
 						{
 							type		: "DELETE",
 							success		: function(response) {
