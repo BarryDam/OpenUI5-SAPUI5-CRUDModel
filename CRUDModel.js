@@ -899,7 +899,7 @@
 				if (_variables.csrf) {
 					mHeaders["X-XSRF-TOKEN"] = _variables.csrf;
 				}
-				var oAjax = $.ajax({
+				var mAjax = {
 					type		: mRequestParams.type || "GET",
 					url			: url,
 					//data		: ("data" in mRequestParams) ? JSON.stringify(mRequestParams.data) : {},
@@ -945,8 +945,16 @@
 							__oServiceCalls[iServiceCallId] = jqXhr;	
 						}
 					}
-				});
-				return oAjax;
+				};
+				// needed for upload to work
+				if ("processData" in mRequestParams) {
+					mAjax.processData = mRequestParams.processData;
+				}
+				if ("contentType" in mRequestParams) {
+					mAjax.contentType = mRequestParams.contentType;
+				}
+				// exec ajax req and return xhr object;
+				return $.ajax(mAjax);
 			};
 
 
@@ -1265,6 +1273,14 @@
 						mParameters.success();						
 						oExport.destroy();
 					});
+			};
+
+
+			/**
+			 * @return the CSRF token
+			 */
+			CRUDModel.prototype.getCSRFToken = function() {
+				return _variables.csrf;
 			};
 
 
@@ -1880,9 +1896,60 @@
 							async   : ("async" in mParameters) ? mParameters.async : true // def true
 						}
 					);
-				}	
-				
+				}		
 			};
+
+			/**
+			 * fire an upload request to the API
+			 * @param  js File object	oFile (https://developer.mozilla.org/nl/docs/Web/API/File) 
+			 * @param  {[type]}       [description]
+			 * @return {[type]}       [description]
+			 * jquery example how to get the file:
+			 * $("#fileInput").change(function(e) {
+			 *		console.log(e.target.files[0]);
+			 *	}
+			 */
+			CRUDModel.prototype.upload = function(oFile, mParameters) {
+				mParameters = (typeof mParameters === "object") ? mParameters : {} ;
+				mParameters.error			= ("error" in mParameters && typeof mParameters.error === "function") ? mParameters.error : function() {} ;
+				mParameters.success			= ("success" in mParameters && typeof mParameters.success === "function") ? mParameters.success : function() {} ;
+				mParameters.progress	= ("progress" in mParameters && typeof mParameters.progress === "function") ? mParameters.progress : function() {} ;
+				mParameters.uploadPath		= ("uploadPath" in mParameters) ? mParameters.uploadPath : "";
+				mParameters.name			= ("name" in mParameters) ? mParameters.name : "0";
+				mParameters.additionalData	= ("additionalData" in mParameters && typeof mParameters.additionalData === "object") ? mParameters.additionalData : {} ;
+				// Check if file is valid
+				if (! (oFile instanceof File)) {
+					_methods.logDebug("first param is not a JS File Object");
+					mParameters.error("first param is not a JS File Object");
+					return;
+				}
+				// prepare file data
+				var oData = new FormData();
+				for (var i in mParameters.additionalData) {
+					oData.append(i, mParameters.additionalData[i]);
+				}
+				oData.append(mParameters.name, oFile);
+				// add uploadProgress to jquery
+				// https://github.com/likerRr/jq-ajax-progress
+				!function(e){"function"==typeof define&&define.amd?define(["jquery"],e):"object"==typeof exports?module.exports=e(require("jquery")):e(jQuery)}(function(e){var n=e.ajax.bind(e);e.ajax=function(r,t){"object"==typeof r&&(t=r,r=void 0),t=t||{};var o;o=t.xhr?t.xhr():e.ajaxSettings.xhr(),t.xhr=function(){return o};var s=t.chunking||e.ajaxSettings.chunking;o.upload.onprogress=null;var i=n(r,t);return i.progress=function(e){var n=0;return o.addEventListener("progress",function(r){var t=[r],o="";3==this.readyState&&s&&(o=this.responseText.substr(n),n=this.responseText.length,t.push(o)),e.apply(this,t)},!1),this},i.uploadProgress=function(e){return o.upload&&o.upload.addEventListener("progress",function(n){e.apply(this,[n])},!1),this},i}});
+				// start request
+				var oXhr = this._serviceCall(
+					mParameters.uploadPath, 
+					{
+						type        : "POST",
+						data        : oData,
+						success     : mParameters.success,
+						error		: mParameters.error,
+						contentType : false,
+						processData : false // if not set to false you will get a Illegal invocation error
+					}
+				);
+				oXhr.uploadProgress(function(e) {
+					mParameters.progress(e);
+				});
+				return oXhr;
+			};
+
 
 			var _mLoadOnce = {};
 			CRUDModel.prototype.onLoadedOnce = function(sTable, fnCallback) {
@@ -1932,9 +1999,7 @@
 				});
 			};
 
-			CRUDModel.prototype.getCSRFToken = function() {
-				return _variables.csrf;
-			};
+			
 
 
 
