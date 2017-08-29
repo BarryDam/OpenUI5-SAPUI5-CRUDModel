@@ -106,6 +106,7 @@ oServiceExample.attachLogin(function() {
 [setUseBatch](#setusebatchbusebatch),
 [submitChanges](#submitchangesfnsuccess-fnerror),
 [update](#updatespath-odata-mparameters).
+[upload](#uploadofile-mparameters).
 
 
 Note: nl.barrydam.CRUDModel is an extension of [sap.ui.model.json.JSONModel](https://sapui5.hana.ondemand.com/#docs/api/symbols/sap.ui.model.json.JSONModel.html) all methods of the JSONModel can also be used except the "loadData" method
@@ -356,10 +357,7 @@ Type 				| Variable 							| Description
 **Returns** *{object}* An object which has an abort function to abort the current request.
 
 
-### update(sPath, oData, mParameters?)
-Trigger a PUT request to the odata service that was specified in the model constructor. Please note that deep updates are not supported and may not work. These should be done seperate on the entry directly.
 
-**Parameters:**
 
 Type 				| Variable 							| Description
 --- 				| --- 								| ---
@@ -369,6 +367,11 @@ Type 				| Variable 							| Description
 *{function}*		| **mParameters.success?** 			| A callback function which is called when the data has been successfully retrieved. The handler can have the following parameters: oData and response.created.
 *{function}*		| **mParameters.error?** 			| a callback function which is called when the request failed. The handler can have the parameter oError which contains additional error information.
 *{boolean}*			| **mParameters.async?** 			| Whether the request should be done asynchronously. Default: false Please be advised that this feature is officially unsupported as using asynchronous requests can lead to data inconsistencies if the application does not make sure that the request was completed before continuing to work with the data.
+
+
+### upload(oFile, mParameters?)
+Upload a file towards the api
+description soon.
 
 
 ## BUY ME A BEER
