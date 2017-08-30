@@ -41,7 +41,8 @@
 						"MetadataFailed",	// attachMetadataFailed attachMetadataFailedOnce fireMetaDatafailed
 						"MetadataLoaded",	// attachMetadataLoaded attachMetadataLoadedOnce fireMetadataLoaded
 						"Reload",			// attachReload attachReloadOnce fireReload
-						"RequestCompleted"	// attachRequestCompleted attachRequestCompletedOnce fireRequestCompleted
+						"RequestCompleted",	// attachRequestCompleted attachRequestCompletedOnce fireRequestCompleted
+						"Updated"	
 					],
 					mUnsupportedOperations : ["loadData"],	// methods from JSONModel which cannot be used
 					csrf: null // csrf token
@@ -1202,11 +1203,11 @@
 				var mPath = _methods.parsePath(sPath);
 				mParameters = (typeof mParameters === "object") ? mParameters : {} ;
 				mParameters.error				= ("error" in mParameters && typeof mParameters.error === "function") ? mParameters.error : function() {} ; 
-				mParameters.excludeColumns		= ("excludeColumns" in mParameters && $.isArray(mParameters.excludeColumns)) ? mParameters.excludeColumns : "[]" ; 
+				mParameters.excludeColumns		= ("excludeColumns" in mParameters && $.isArray(mParameters.excludeColumns)) ? mParameters.excludeColumns : [] ; 
 				mParameters.filename			= ("filename" in mParameters) ? mParameters.filename : mPath.Table+"-"+Date.now() ;
 				mParameters.formatValue			= ("formatValue" in mParameters && typeof mParameters.formatValue === "function") ? mParameters.formatValue : function(sColumn, sValue) { return sValue; } ; 
 				mParameters.formatColumnName	= ("formatColumnName" in mParameters && typeof mParameters.formatColumnName === "function") ? mParameters.formatColumnName : function(sName) { return sName; } ; 
-				mParameters.includeColumns		= ("includeColumns" in mParameters) ? mParameters.includeColumns : null ; // , = ui5 default
+				mParameters.includeColumns		= ("includeColumns" in mParameters) ? mParameters.includeColumns : [] ; // , = ui5 default
 				mParameters.refreshData			= ("refreshData" in mParameters) ? mParameters.refreshData : false ; // , = ui5 default
 				mParameters.separatorChar		= ("separatorChar" in mParameters) ? mParameters.separatorChar : "," ; // , = ui5 default
 				mParameters.success				= ("success" in mParameters && typeof mParameters.success === "function") ? mParameters.success : function() {} ; 
@@ -1886,6 +1887,9 @@
 										m[mPath.Id] = $.extend(true, m[mPath.Id], mData);
 										JSONModel.prototype.setProperty.call(that, "/"+mPath.Table+"/"+mPath.Id, m[mPath.Id]);
 									}
+									that.fireUpdated({
+										path: mPath
+									});
 									// user callback
 									mParameters.success();
 								} else {
@@ -1999,7 +2003,14 @@
 				});
 			};
 
-			
+			CRUDModel.prototype.onUpdated =	function(sTable, fnCallback) {
+				this.attachUpdated(function(e) {
+					var mParams = e.getParameters();
+					if ("path" in mParams && "Table" in mParams.path && mParams.path.Table === sTable && typeof fnCallback === "function") {
+						fnCallback(mParams);
+					}				
+				});
+			};			
 
 
 
