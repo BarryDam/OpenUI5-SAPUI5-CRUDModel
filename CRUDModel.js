@@ -394,7 +394,7 @@
 			 * Parse data received from api
 			 */
 			_methods.parseCRUDGetData = function(oProxy, sTableName, mData) {
-				if (typeof mData !== "object" || Object.keys(mData).length) {
+				if (typeof mData !== "object" || Object.keys(mData).length === 0) {
 					return mData;
 				}
 				mData = $.extend(true, {}, mData);
@@ -1061,6 +1061,7 @@
 										if (! that.getProperty("/"+mPath.Table)) {
 											JSONModel.prototype.setProperty.call(that, "/"+mPath.Table, {});
 										}
+										mResponse = _methods.parseCRUDGetData(that, mPath.Table, mResponse);
 										JSONModel.prototype.setProperty.call(that, "/"+mPath.Table+"/"+iInsertId, mResponse);
 										mParameters.success(mResponse);
 									},
