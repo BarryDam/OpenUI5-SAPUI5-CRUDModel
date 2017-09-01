@@ -1983,6 +1983,7 @@
 
 			CRUDModel.prototype.onLoaded = function(sTable, fnCallback) {
 				// fire directely if allready loaded
+				var m = this.getProperty("/"+sTable);
 				if (this.getProperty("/"+sTable) && typeof fnCallback == "function") {
 					fnCallback(m);
 				}
