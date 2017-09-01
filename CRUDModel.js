@@ -42,7 +42,8 @@
 						"MetadataLoaded",	// attachMetadataLoaded attachMetadataLoadedOnce fireMetadataLoaded
 						"Reload",			// attachReload attachReloadOnce fireReload
 						"RequestCompleted",	// attachRequestCompleted attachRequestCompletedOnce fireRequestCompleted
-						"Updated"	
+						"Updated",			// attachUpdated attachUpdatedOnce fireUpdated	
+						"TableDataChanged"	// attachTableDataChanged attachTableDataChangedOnce fireTableDataChanged	
 					],
 					mUnsupportedOperations : ["loadData"],	// methods from JSONModel which cannot be used
 					csrf: null // csrf token
@@ -335,6 +336,10 @@
 									oProxy.getProperty("/"+mPath.Table)
 								)
 							);
+							// fire event
+							oProxy.fireTableDataChanged({
+								table : mPath.Table
+							});	
 						}
 					}
 				);	
@@ -1064,6 +1069,9 @@
 										mResponse = _methods.parseCRUDGetData(that, mPath.Table, mResponse);
 										JSONModel.prototype.setProperty.call(that, "/"+mPath.Table+"/"+iInsertId, mResponse);
 										mParameters.success(mResponse);
+										that.fireTableDataChanged({
+											table     : mPath.Table
+										});
 									},
 									error: function() {
 										mParameters.success(oData);
@@ -1778,7 +1786,10 @@
 					var m = this.getProperty("/"+mPath.Table);
 					if (m && mPath.Id in m) { // only remove from model if it's available
 						delete m[mPath.Id];
-						JSONModel.prototype.setProperty.call(this, "/"+mPath.Table, m);	
+						JSONModel.prototype.setProperty.call(this, "/"+mPath.Table, m);
+						that.fireTableDataChanged({
+							table : mPath.Table
+						});	
 					}
 					// usercallback
 					mParameters.success();
@@ -1801,6 +1812,9 @@
 									that.refresh(true);
 									// callback
 									mParameters.success.apply(this, arguments);
+									that.fireTableDataChanged({
+										table     : mPath.Table
+									});
 								} 
 							},
 							error		: mParameters.error,
@@ -1872,6 +1886,9 @@
 					if (mPath.Id in m) {
 						m[mPath.Id] = $.extend(true, m[mPath.Id], mData);
 						JSONModel.prototype.setProperty.call(this, "/"+mPath.Table, m[mPath.Id]);
+						that.fireTableDataChanged({
+							table : mPath.Table
+						});	
 					}
 					// user callback
 					mParameters.success();
@@ -1891,6 +1908,9 @@
 									that.fireUpdated({
 										path: mPath
 									});
+									that.fireTableDataChanged({
+										table : mPath.Table
+									});	
 									// user callback
 									mParameters.success();
 								} else {
@@ -1981,9 +2001,15 @@
 				});
 			};
 
+			/**
+			 * Triggered when the table data is (re-)loaded
+			 * @param string   sTable      table name which is attached to reoad
+			 * @param function fnCallback  callback function with first param = table data 
+			 */
 			CRUDModel.prototype.onLoaded = function(sTable, fnCallback) {
 				// fire directely if allready loaded
-				var m = this.getProperty("/"+sTable);
+				var m		= this.getProperty("/"+sTable),
+					that	= this;
 				if (this.getProperty("/"+sTable) && typeof fnCallback == "function") {
 					fnCallback(m);
 				}
@@ -1991,20 +2017,28 @@
 				this.attachRequestCompleted(function(e){
 					var m = e.getParameters();
 					if ("path" in m && "Table" in m.path && m.path.Table == sTable && m.type == "GET" && typeof fnCallback === "function") {
-						fnCallback(m);
+						var mResult = that.getProperty("/"+m.path.Table);
+						fnCallback(mResult);
 					}
 				});
 			};
 
+			/**
+			 * Fired when reload starts
+			 */
 			CRUDModel.prototype.onReload =	function(sTable, fnCallback) {
 				this.attachReload(function(e) {
 					var mParams = e.getParameters();
 					if ("path" in mParams && "Table" in mParams.path && mParams.path.Table === sTable && typeof fnCallback === "function") {
-						fnCallback(mParams);
+						var mResult = that.getProperty("/"+mParams.path.Table);						
+						fnCallback(mResult);
 					}				
 				});
 			};
 
+			/**
+			 * fired when model is updated
+			 */
 			CRUDModel.prototype.onUpdated =	function(sTable, fnCallback) {
 				this.attachUpdated(function(e) {
 					var mParams = e.getParameters();
@@ -2012,9 +2046,19 @@
 						fnCallback(mParams);
 					}				
 				});
-			};			
+			};
 
-
+			/**
+			 * Fired when the model table data is changed
+			 */
+			CRUDModel.prototype.onChanged = function(sTable, fnCallback) {
+				this.attachTableDataChanged(function(e) {
+					var mParams = e.getParameters();
+					if ("table"in mParams && mParams.table == sTable) {
+						fnCallback(this.getProperty("/"+mParams.table));
+					}
+				});
+			};
 
 			return CRUDModel;
 			
