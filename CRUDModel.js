@@ -916,7 +916,7 @@
 					success		: mRequestParams.success,
 					headers		: mHeaders,
 					error		: function(xhr, textStatus, httpStatus) {
-						if (httpStatus == "Unauthorized") {
+						if (httpStatus == "Unauthorized" || xhr.status == 401) {
 							if (bAsync) {
 								delete __oServiceCalls[iServiceCallId];
 							}
