@@ -773,7 +773,7 @@
 									error: function(xhr, textStatus, httpStatus) {
 										that.fireMetadataFailed();	
 										// not logged in? load metadata after login
-										if (httpStatus == "Unauthorized") {
+										if (httpStatus == "Unauthorized" || xhr.status == 401) {
 											that.attachLoginOnce(function(){
 												fnLoadMetadata();
 											});
