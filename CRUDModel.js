@@ -1378,6 +1378,10 @@
 							if (("success" in mParameters) && typeof mParameters.success == "function") {
 								if (! mPath.Id) { // if the path = 0 . the response holds multiple entries
 									mResponse = _methods.parseCRUDresultList(that, mPath.Table, mResponse);
+								} else {
+									for (var sColumn in mResponse) {
+										mResponse[sColumn] = _methods.parseCRUDGetColumn(that, mPath.Table, sColumn, mResponse[sColumn]);	
+									}
 								}
 								mParameters.success(mResponse);
 							}
