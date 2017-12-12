@@ -1220,6 +1220,9 @@
 				mParameters.refreshData			= ("refreshData" in mParameters) ? mParameters.refreshData : false ; // , = ui5 default
 				mParameters.separatorChar		= ("separatorChar" in mParameters) ? mParameters.separatorChar : "," ; // , = ui5 default
 				mParameters.success				= ("success" in mParameters && typeof mParameters.success === "function") ? mParameters.success : function() {} ; 
+				//mParameters.customColumns		= ("customColumns" in mParameters) ? mParameters.customColumns : false ;
+				mParameters.formatColumns		= ("formatColumns" in mParameters && typeof mParameters.formatColumns === "function") ? mParameters.formatColumns : function(aColumns){ return aColumns; } ;
+				mParameters.formatRow			= ("formatRow" in mParameters && typeof mParameters.formatRow === "function") ? mParameters.formatRow : function(mRow){ return mRow; } ;
 				// check if path has set
 				if (! mPath.Table) { 
 					return mParameters.error("\"sPath\" is undefined", "error");
@@ -1261,12 +1264,32 @@
 							};
 						});
 					}
+					// if (mParameters.customColumns) {
+					// 	for (var iCc in mParameters.customColumns) {
+					// 		var sCustomColumnName;
+					// 		if (typeof mParameters.customColumns[iCc] === "object") {
+					// 			sCustomColumnName = mParameters.customColumns[iCc].name;
+					// 		} else {
+					// 			sCustomColumnName = mParameters.customColumns[iCc];
+					// 		}
+					// 		aColumns.push({
+					// 			name			: sCustomColumnName,
+					// 			template		: { content: "{"+mParameters.customColumns[iCc].name+"}" }
+					// 		});
+					// 	}
+					// }
 					// format the value
 					for (var sColumn in m[i]) {
-						m[i][sColumn] = mParameters.formatValue(sColumn, m[i][sColumn]);
+						m[i][sColumn] = mParameters.formatValue(sColumn, m[i][sColumn], m[i]);
+						if (mParameters.customColumns) {
+							for (var iCc2 in mParameters.customColumns) {
+								m[i][sColumn] = mParameters.formatValue(sColumn, m[i][sColumn], m[i]);
+							}
+						}
 					}
 					// add to csv data
-					aData.push(m[i]);
+					var mRow = mParameters.formatRow(m[i]);
+					aData.push(mRow);
 				}
 				var oExport = new Export({
 					exportType    : new ExportTypeCSV({
@@ -1274,7 +1297,7 @@
 					}),
 					models        : new JSONModel(aData),
 					rows          : { path : "/" },
-					columns       : aColumns
+					columns       : mParameters.formatColumns(aColumns)
 				});
 				oExport.saveFile(mParameters.filename)
 					.catch(function() {
