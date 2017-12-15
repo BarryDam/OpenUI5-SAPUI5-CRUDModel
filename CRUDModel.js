@@ -2054,6 +2054,7 @@
 			 * Fired when reload starts
 			 */
 			CRUDModel.prototype.onReload =	function(sTable, fnCallback) {
+				var that = this;
 				this.attachReload(function(e) {
 					var mParams = e.getParameters();
 					if ("path" in mParams && "Table" in mParams.path && mParams.path.Table === sTable && typeof fnCallback === "function") {
